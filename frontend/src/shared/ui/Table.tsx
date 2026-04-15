@@ -169,7 +169,7 @@ export default function Table<T>({
       ].join(" ")}
     >
       <div className="overflow-x-auto">
-        <DataTable<T>
+        <DataTable.default<T>
           columns={columns}
           data={data}
           responsive

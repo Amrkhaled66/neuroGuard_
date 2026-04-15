@@ -27,13 +27,13 @@ const Header = () => {
   const name = "Amr Khaled";
 
   return (
-    <motion.header className="sticky pt-6 py-6 top-0 z-50">
+    <motion.header className="sticky py-6  w-full container mx-auto top-0 z-50">
       <motion.div
-        className="container mx-auto flex  items-center justify-between gap-4 border px-4 py-3 text-sm backdrop-blur-xl transition-[background-color,border-color,box-shadow,border-radius] duration-300 sm:px-6"
+        className=" mx-auto flex  items-center w-full justify-between gap-4 border  py-3 text-sm backdrop-blur-xl animate duration-300 sm:px-6"
         animate={{
-          backgroundColor: scrolled
-            ? "var(--header-shell-scrolled)"
-            : "var(--header-shell)",
+          // backgroundColor: scrolled
+          //   ? "var(--header-shell-scrolled)"
+          //   : "var(--header-shell)",
           borderColor: scrolled
             ? "var(--border-subtle)"
             : "rgba(255,255,255,0)",

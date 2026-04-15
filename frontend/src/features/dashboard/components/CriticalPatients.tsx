@@ -24,7 +24,7 @@ const fakePatients = [
   },
 ];
 const CriticalPatients = () => {
-  const isLoading = true;
+  const isLoading = false;
   if (isLoading) {
     return <CriticalPatientsSkeleton />;
   }

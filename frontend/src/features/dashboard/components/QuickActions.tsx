@@ -1,7 +1,7 @@
 import { FaUserPlus } from "react-icons/fa6";
 import QuickActionsSkeleton from "../skeletons/QuickActionsSkeleton";
 const QuickActions = () => {
-  const isLoading = true;
+  const isLoading = false;
 
   if (isLoading) {
     return <QuickActionsSkeleton />;

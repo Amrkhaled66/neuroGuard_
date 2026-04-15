@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import RealTimeInsightsSkeleton from "../skeletons/RealTimeInsightsSkeleton";
 const RealTimeInsights = () => {
-  const isLoading = true;
+  const isLoading = false;
 
   if (isLoading) {
     return <RealTimeInsightsSkeleton />;

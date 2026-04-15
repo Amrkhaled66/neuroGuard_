@@ -204,7 +204,7 @@ export const patients: Patient[] = [
 ];
 
 const PatientsTable = () => {
-  const isLoading = true;
+  const isLoading = false;
 
   if (isLoading) {
     return <PatientsTableSkeleton />;

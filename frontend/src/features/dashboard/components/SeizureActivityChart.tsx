@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import SeizureActivityChartSkeleton from "../skeletons/SeizureActivityChartSkeleton";
 const SeizureActivityChart = () => {
   const days = 7;
-  const isLoading = true;
+  const isLoading = false;
 
   if (isLoading) {
     return <SeizureActivityChartSkeleton />;

@@ -43,10 +43,10 @@ export default function PatientLayout() {
   const { patientId = "" } = useParams();
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl min-w-0 flex-col gap-5 px-4 pb-6 sm:gap-6 sm:px-6 lg:gap-8 lg:px-8">
+    <div className="mx-auto flex w-full container flex-col gap-5 pb-6 sm:gap-6 lg:gap-8 ">
       <PatientLayoutHeader patient={patient} />
       <PatientTabs patientId={patientId} />
-      <div className="min-w-0">
+      <div className="">
         <Outlet context={{ patient, isLoading: false }} />
       </div>
     </div>
