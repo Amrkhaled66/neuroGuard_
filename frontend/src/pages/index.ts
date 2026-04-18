@@ -1,9 +1,9 @@
 export * from "./DoctorDashboardPage";
-export * from "./LoginPage";
+export { default as SigninPage } from "./SigninPage";
 export * from "./NotesPage";
 export * from "./NotificationsPage";
 export * from "./PatientEegSessionsPage";
 export { default as PatientProfilePage } from "./PatientProfilePage";
 export * from "./PatientsPage";
 export * from "./SeizuresPage";
-export * from "./SignupPage";
+export { default as SignupPage } from "./SignupPage";

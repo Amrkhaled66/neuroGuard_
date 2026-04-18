@@ -15,13 +15,13 @@ export function AppRouter() {
         {/* Root redirect */}
         <Route
           path={routePaths.root}
-          element={<Navigate to={routePaths.login} replace />}
+          element={<Navigate to={routePaths.signin} replace />}
         />
 
         {/* Top-level routes */}
         <Route
-          path={topLevelRouteMap.login.path}
-          element={<topLevelRouteMap.login.Component />}
+          path={topLevelRouteMap.signin.path}
+          element={<topLevelRouteMap.signin.Component />}
         />
         <Route
           path={topLevelRouteMap.signup.path}

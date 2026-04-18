@@ -1,6 +1,6 @@
 import {
   DashboardPage,
-  LoginPage,
+  SigninPage,
   NotesPage,
   NotificationsPage,
   PatientEegSessionsPage,
@@ -45,10 +45,10 @@ export const patientSectionRouteMap = {
 } as const;
 
 export const topLevelRouteMap = {
-  login: {
-    name: "login",
-    path: routePaths.login,
-    Component: LoginPage,
+  signin: {
+    name: "signin",
+    path: routePaths.signin,
+    Component: SigninPage,
   },
   signup: {
     name: "signup",

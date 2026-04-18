@@ -1,6 +1,6 @@
 export const routePaths = {
   root: "/",
-  login: "/login",
+  signin: "/signin",
   signup: "/signup",
   doctorDashboard: "/DoctorDashboardPage",
   patients: "/patients",
