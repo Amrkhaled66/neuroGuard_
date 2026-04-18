@@ -182,7 +182,7 @@
   --font-body: "Inter", sans-serif;
   --font-label: "Inter", sans-serif;
 
-  --color-background: var(--surface-muted);
+  --color-background: #F8FAF9;
   --color-brand-primary: var(--brand-primary);
   --color-brand-primary-hover: var(--brand-primary-hover);
   --color-brand-primary-soft: var(--brand-primary-soft);
@@ -210,6 +210,8 @@
   --color-stroke: var(--border-strong);
 
   --color-fontColor: var(--text-secondary);
+
+  --color-surface-muted: var(--surface-muted);
 }
 
 @layer base {

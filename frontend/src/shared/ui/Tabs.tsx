@@ -11,10 +11,9 @@ type TabItem = {
 type TabsProps = {
   tabs: TabItem[];
   activeTab: string;
-  onChange: (key: string) => void;
 };
 
-const Tabs = ({ tabs, activeTab, onChange }: TabsProps) => {
+const Tabs = ({ tabs, activeTab}: TabsProps) => {
   return (
     <div className="app-surface-soft w-full rounded-3xl px-3 py-2 sm:px-4">
       <div className="">
@@ -27,7 +26,6 @@ const Tabs = ({ tabs, activeTab, onChange }: TabsProps) => {
               <Link
                 key={tab.key}
                 to={tab.to}
-                onClick={() => onChange(tab.key)}
                 className={[
                   "relative flex shrink-0 items-center gap-2 rounded-t-2xl border-b-2 px-2 py-4 text-sm font-semibold transition-colors sm:px-3 sm:py-5 sm:text-base",
                   isActive

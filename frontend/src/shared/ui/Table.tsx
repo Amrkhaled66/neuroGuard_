@@ -28,7 +28,7 @@ function getCustomStyles(isDark: boolean): TableStyles {
   const palette = isDark
     ? {
         tableBg: "rgba(10, 18, 15, 0.82)",
-        headerBg: "rgba(17, 28, 25, 0.96)",
+        headerBg: "rgba(17, 28, 25, 0.9)",
         rowBg: "rgba(10, 18, 15, 0.72)",
         rowHoverBg: "rgba(0, 0, 0, 0)",
         border: "rgba(130, 215, 177, 0.12)",
@@ -38,7 +38,7 @@ function getCustomStyles(isDark: boolean): TableStyles {
       }
     : {
         tableBg: "#FFFFFF",
-        headerBg: "#F7F7F7",
+        headerBg: "#FFF",
         rowBg: "#FFFFFF",
         rowHoverBg: "#FAFAFA",
         border: "#ECECEC",
@@ -52,6 +52,9 @@ function getCustomStyles(isDark: boolean): TableStyles {
       style: {
         backgroundColor: palette.tableBg,
         minWidth: "820px",
+        borderTopLeftRadius: "24px",
+        borderTopRightRadius: "24px",
+        overflow: "hidden",
       },
     },
     headRow: {
@@ -164,7 +167,7 @@ export default function Table<T>({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, ease: "easeOut" }}
       className={[
-        "app-surface app-text-primary rounded-3xl sm:rounded-[28px]",
+        "!rounded-3xl",
         className,
       ].join(" ")}
     >

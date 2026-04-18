@@ -1,5 +1,11 @@
 export type PatientStatus = "monitoring" | "critical" | "stable";
 
+export const patientStatuses: PatientStatus[] = [
+  "stable",
+  "monitoring",
+  "critical",
+];
+
 const statusMap: Record<
   PatientStatus,
   { label: string; dotClass: string; textClass: string }

@@ -6,7 +6,9 @@ import {
   DoctorDashboardLayout,
   PatientLayout,
 } from "@/layouts/index";
+
 export function AppRouter() {
+  
   return (
     <BrowserRouter>
       <Routes>

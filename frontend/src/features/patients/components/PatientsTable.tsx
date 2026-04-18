@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import type { TableColumn } from "react-data-table-component";
 import { BsFileTextFill } from "react-icons/bs";
 import { Link } from "react-router-dom";
@@ -6,7 +7,10 @@ import Table from "@/shared/ui/Table";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import statusMap from "@/shared/interfaces/PatientStatus";
 import type { PatientStatus } from "@/shared/interfaces/PatientStatus";
-import PatientsTableSkeleton from "../../../shared/ui/skeletons/TableSkeleton";
+import PatientsTableSkeleton from "@/shared/ui/skeletons/TableSkeleton";
+import PatientsStatusFilters from "./PatientsStatusFilters";
+import PatientsTableSearch from "./PatientsTableSearch";
+
 type Patient = {
   id: string;
   name: string;
@@ -31,7 +35,7 @@ export const patientColumns: TableColumn<Patient>[] = [
           className="h-10 w-10 rounded-full object-cover sm:h-12 sm:w-12"
         />
         <div className="min-w-0">
-          <p className="app-text-primary truncate text-base font-semibold leading-none sm:text-[18px]">
+          <p className="app-text-primary truncate text-base leading-none font-semibold sm:text-[18px]">
             {row.name}
           </p>
           <p className="app-text-secondary mt-1 truncate text-sm sm:text-[15px]">
@@ -87,12 +91,12 @@ export const patientColumns: TableColumn<Patient>[] = [
     minWidth: "160px",
     cell: (row) => (
       <div
-        className={`inline-flex items-center gap-2 whitespace-nowrap rounded-full px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] sm:px-4 sm:text-xs ${statusMap[row.status].textClass}`}
+        className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-[11px] font-semibold tracking-[0.08em] whitespace-nowrap uppercase sm:px-4 sm:text-xs ${statusMap[row.status].textClass}`}
       >
         <span
           className={`h-2.5 w-2.5 rounded-full ${statusMap[row.status].dotClass}`}
         />
-        {row.status}
+        {statusMap[row.status].label}
       </div>
     ),
   },
@@ -103,7 +107,7 @@ export const patientColumns: TableColumn<Patient>[] = [
     cell: (row) => (
       <Link
         to={routePaths.patientDetails.replace(":patientId", row.id)}
-        className="font-bold animate flex w-full items-center justify-center gap-x-1 rounded-2xl px-4 py-3 text-brand-primary hover:bg-brand-primary-soft/50 sm:w-auto sm:py-2"
+        className="animate text-brand-primary hover:bg-brand-primary-soft/50 flex w-full items-center justify-center gap-x-1 rounded-2xl px-4 py-3 font-bold sm:w-auto sm:py-2"
       >
         View
         <IoIosArrowRoundForward className="text-2xl" />
@@ -111,6 +115,59 @@ export const patientColumns: TableColumn<Patient>[] = [
     ),
   },
 ];
+
+
+
+const PatientsTable = () => {
+  const isLoading = false;
+  const [activeStatus, setActiveStatus] = useState<PatientStatus | "all">(
+    "all",
+  );
+
+  const filteredPatients = useMemo(() => {
+    if (activeStatus === "all") {
+      return patients;
+    }
+
+    return patients.filter((patient) => patient.status === activeStatus);
+  }, [activeStatus]);
+
+  const handleStatusChange = (status: PatientStatus | "all") => {
+    setActiveStatus(status);
+  };
+
+  if (isLoading) {
+    return <PatientsTableSkeleton />;
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <PatientsTableSearch />
+        <PatientsStatusFilters
+          handleStatusChange={handleStatusChange}
+          activeStatus={activeStatus || "all"}
+        />
+      </div>
+      <Table
+        className="rounded-2xl sm:rounded-[28px]"
+        columns={patientColumns}
+        data={filteredPatients}
+        pagination
+        paginationPerPage={5}
+        totalRows={filteredPatients.length}
+        //   paginationServer
+        onPageChange={(page) => console.log(page)}
+        onRowsPerPageChange={(rowsPerPage, page) =>
+          console.log({ rowsPerPage, page })
+        }
+      />
+    </div>
+  );
+};
+
+export default PatientsTable;
+
 
 export const patients: Patient[] = [
   {
@@ -202,29 +259,3 @@ export const patients: Patient[] = [
     avatar: "https://randomuser.me/api/portraits/men/54.jpg",
   },
 ];
-
-const PatientsTable = () => {
-  const isLoading = false;
-
-  if (isLoading) {
-    return <PatientsTableSkeleton />;
-  }
-
-  return (
-    <Table
-      className="rounded-2xl sm:rounded-[28px]"
-      columns={patientColumns}
-      data={patients}
-      pagination
-      paginationPerPage={5}
-      totalRows={1248}
-      //   paginationServer
-      onPageChange={(page) => console.log(page)}
-      onRowsPerPageChange={(rowsPerPage, page) =>
-        console.log({ rowsPerPage, page })
-      }
-    />
-  );
-};
-
-export default PatientsTable;

@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import Tabs from "@/shared/ui/Tabs";
 import { patientSectionRouteMap } from "@/app/router/routes";
 type Props = {
-  patientId: string;
+  patientId: string|undefined;
 };
 
 export default function PatientTabs({ patientId }: Props) {
@@ -40,9 +40,7 @@ export default function PatientTabs({ patientId }: Props) {
     [patientId],
   );
 
-  const activeTab =
-    tabs.find((tab) => pathname.endsWith(tab.to.split("/").pop() ?? ""))?.key ??
-    "profile";
+  const activeTab = pathname.split("/").at(-1) || "profile";
 
-  return <Tabs tabs={tabs} activeTab={activeTab} onChange={() => {}} />;
+  return <Tabs tabs={tabs} activeTab={activeTab} />;
 }

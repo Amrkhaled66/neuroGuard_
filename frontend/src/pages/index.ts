@@ -3,7 +3,7 @@ export * from "./LoginPage";
 export * from "./NotesPage";
 export * from "./NotificationsPage";
 export * from "./PatientEegSessionsPage";
-export * from "./PatientProfilePage";
+export { default as PatientProfilePage } from "./PatientProfilePage";
 export * from "./PatientsPage";
 export * from "./SeizuresPage";
 export * from "./SignupPage";
