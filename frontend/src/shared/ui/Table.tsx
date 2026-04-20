@@ -51,7 +51,7 @@ function getCustomStyles(isDark: boolean): TableStyles {
     table: {
       style: {
         backgroundColor: palette.tableBg,
-        minWidth: "820px",
+        // minWidth: "820px",
         borderTopLeftRadius: "24px",
         borderTopRightRadius: "24px",
         overflow: "hidden",
@@ -78,9 +78,9 @@ function getCustomStyles(isDark: boolean): TableStyles {
     },
     rows: {
       style: {
-        minHeight: "96px",
+        minHeight: "80px",
         backgroundColor: palette.rowBg,
-        borderBottom: `1px solid ${palette.border}`,
+        // borderBottom: `1px solid ${palette.border}`,
         transition: "background-color 0.2s ease",
         "&:hover": {
           backgroundColor: palette.rowHoverBg,
