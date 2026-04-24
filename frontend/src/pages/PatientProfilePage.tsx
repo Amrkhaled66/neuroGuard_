@@ -17,11 +17,11 @@ export default function PatientProfilePage() {
         items={demoData.clinicalOverview}
         isLoading={isLoading}
       />
-      <SeizureTrendCard trend={demoData.trend} isLoading={isLoading} />
+      {/* <SeizureTrendCard trend={demoData.trend} isLoading={isLoading} /> */}
       <MedicationsCard items={demoData.medications} isLoading={isLoading} />
       <RiskAssessmentCard risk={demoData.risk} isLoading={isLoading} />
-      <KeyStatsCard stats={demoData.stats} isLoading={isLoading} />
       <AlertsCard alerts={demoData.alerts} isLoading={isLoading} />
+      <KeyStatsCard stats={demoData.stats} isLoading={isLoading} />
     </section>
   );
 }

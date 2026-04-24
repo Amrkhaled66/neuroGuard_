@@ -3,9 +3,9 @@ import type { ProfileOverviewData } from "./types";
 export const demoData: ProfileOverviewData = {
   clinicalOverview: [
     { label: "Diagnosis", value: "Refractory TLE" },
-    { label: "Seizure Type", value: "Complex Partial" },
+    { label: "Trend", value: "Increasing" },
     { label: "Frequency", value: "2.4/week avg" },
-    { label: "Brain Region", value: "Left Hippocampal" },
+    { label: "Last Seizure", value: "2 hours" },
   ],
   medications: [
     {
