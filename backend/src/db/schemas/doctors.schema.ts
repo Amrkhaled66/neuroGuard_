@@ -1,10 +1,9 @@
-import { pgTable as table, integer, varchar } from 'drizzle-orm/pg-core';
-import { users } from './users.schema';
+import { pgTable as table, text, varchar } from 'drizzle-orm/pg-core';
+import baseColumns from '../baseColumns';
 
 export const doctors = table('doctors', {
-  userId: integer('user_id')
-    .primaryKey()
-    .references(() => users.id, { onDelete: 'cascade' }),
+  ...baseColumns,
+  email: text().notNull().unique(),
 
-  clinicName: varchar('clinic_name', { length: 255 }),
+  clinicName: varchar('clinic_name', { length: 255 }).notNull(),
 });
