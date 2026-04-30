@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import DataTable from "react-data-table-component";
 import type { TableColumn, TableStyles } from "react-data-table-component";
 import { useMemo } from "react";
-import { useTheme } from "@/shared/theme/ThemeProvider";
+import { useTheme } from "@/shared/theme/themeContext";
 
 type TableProps<T> = {
   columns: TableColumn<T>[];
@@ -172,7 +172,7 @@ export default function Table<T>({
       ].join(" ")}
     >
       <div className="overflow-x-auto">
-        <DataTable.default<T>
+        <DataTable<T>
           columns={columns}
           data={data}
           responsive

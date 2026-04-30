@@ -23,7 +23,7 @@ type Patient = {
   avatar: string;
 };
 
-export const patientColumns: TableColumn<Patient>[] = [
+const patientColumns: TableColumn<Patient>[] = [
   {
     name: "Patient Name",
     grow: 2.2,
@@ -169,7 +169,7 @@ const PatientsTable = () => {
 export default PatientsTable;
 
 
-export const patients: Patient[] = [
+const patients: Patient[] = [
   {
     id: "1",
     name: "Sarah Miller",

@@ -12,11 +12,11 @@ const isAuth = !!getToken();
 // Admin
 
 const setAdminToken = (token: string) => setItem("admin_token", token);
-const setAdmin = (admin: any) => setItem("admin", admin);
+const setAdmin = (admin: unknown) => setItem("admin", admin);
 const clearAdminToken = () => removeItem("admin_token");
 const clearAdmin = () => removeItem("admin");
 const getAdminToken = (): string | null => getItem("admin_token");
-const getAdmin = (): any => getItem("admin");
+const getAdmin = (): unknown => getItem("admin");
 
 const isAdmin = !!getAdminToken();
 

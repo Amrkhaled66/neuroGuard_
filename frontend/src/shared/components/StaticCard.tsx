@@ -24,7 +24,7 @@ export default function StaticCard({
       </div>
       <div className="mt-4">
         <p className="text-3xl font-bold">{value}</p>
-        <p className="app-text-secondary text-xs uppercase">{label}</p>
+        <p className="app-text-secondary font-bold text-xs uppercase">{label}</p>
       </div>
     </div>
   );

@@ -2,16 +2,19 @@ import { useEffect } from "react";
 import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { IoClose } from "react-icons/io5";
 import Overlay from "@shared/ui/Overlay";
 
 const Modal = ({
   isOpen,
   onClose,
   children,
+  showCloseButton = true,
 }: {
   isOpen: boolean;
   onClose: () => void;
   children: ReactNode;
+  showCloseButton?: boolean;
 }) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -34,6 +37,16 @@ const Modal = ({
             transition={{ duration: 0.2 }}
             className="fixed top-1/2 left-1/2 z-[90] max-h-[85vh] w-[90%] -translate-x-1/2 -translate-y-1/2 lg:max-w-[50%]"
           >
+            {showCloseButton ? (
+              <button
+                type="button"
+                aria-label="Close modal"
+                onClick={onClose}
+                className="app-surface absolute top-3 right-3 z-10 flex size-9 items-center justify-center rounded-full text-lg text-[var(--text-secondary)] transition-colors hover:text-brand-primary"
+              >
+                <IoClose />
+              </button>
+            ) : null}
             {children}
           </motion.div>
           {/* <div className="absolute inset-0"> */}

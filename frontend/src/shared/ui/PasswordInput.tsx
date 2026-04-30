@@ -4,7 +4,7 @@ interface PasswordInputProps {
   label: string;
   name: string;
   placeholder?: string;
-  value: string;
+  value?: string;
   error?: string;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   notShowingIcon?: boolean;
@@ -18,6 +18,7 @@ const PasswordInput = ({
   onChange,
   value,
   notShowingIcon,
+  ...props
 }: PasswordInputProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -42,7 +43,8 @@ const PasswordInput = ({
           value={value}
           onFocus={handleFocus}
           onBlur={handleBlur}
-          className={`w-full bg-white  text-sm px-2 py-3 border-0 border-b transition-colors focus:outline-none ${
+          {...props}
+          className={`w-full border-0 border-b px-2 py-3 text-sm transition-colors focus:outline-none ${
             notShowingIcon ? "pe-2" : "pe-10"
           } ${
             error

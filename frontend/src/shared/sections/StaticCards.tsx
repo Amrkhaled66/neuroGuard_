@@ -2,6 +2,10 @@ import StaticCard from "../components/StaticCard";
 import type { ReactNode } from "react";
 import { motion, type Variants } from "framer-motion";
 import { MdOutlineGroups2 } from "react-icons/md";
+import { SiGoogleanalytics } from "react-icons/si";
+import { LuBrain } from "react-icons/lu";
+import { GoAlertFill } from "react-icons/go";
+
 import StaticCardSkeleton from "../ui/skeletons/StaticCardSkeleton";
 const containerVariants = {
   hidden: {},
@@ -77,23 +81,23 @@ const fakeItems: StaticCardItem[] = [
   },
   {
     id: "2",
-    title: "Total Patients",
+    title: "Active Sessions",
     state: 120,
-    icon: <MdOutlineGroups2 />,
+    icon: <SiGoogleanalytics />,
     isDanger: false,
   },
   {
     id: "3",
-    title: "Total Patients",
+    title: "EEG FILES",
     state: 120,
-    icon: <MdOutlineGroups2 />,
+    icon: <LuBrain />,
     isDanger: true,
   },
   {
     id: "4",
-    title: "Total Patients",
+    title: "Critical Alerts",
     state: 120,
-    icon: <MdOutlineGroups2 />,
+    icon: <GoAlertFill />,
     isDanger: true,
   },
 ];

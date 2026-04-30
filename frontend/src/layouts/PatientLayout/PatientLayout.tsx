@@ -22,7 +22,7 @@ export interface PatientI {
   status: PatientStatus;
 }
 
-export const patient: PatientI = {
+const patient: PatientI = {
   id: "1",
   firstName: "Arthur",
   lastName: "Samuels",

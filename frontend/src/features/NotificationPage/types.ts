@@ -1,5 +1,3 @@
-import type { IconType } from "react-icons";
-
 export type NotificationStatus = "read" | "sent" | "unread";
 
 export type NotificationItem = {
@@ -8,7 +6,7 @@ export type NotificationItem = {
   data: string;
   message: string;
   status: NotificationStatus;
-  
+
   source: string;
 };
 

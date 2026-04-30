@@ -1,21 +1,18 @@
-// src/pages/Signin.tsx
-
 import AuthLayout from "@/layouts/AuthLayout";
-import { useNavigate } from "react-router-dom";
 import { useForm } from "@shared/hooks/useForm";
 import PasswordInput from "@shared/ui/PasswordInput";
 import FormInput from "@shared/ui/FormInput";
-// import { useLogin } from "src/hooks/queries/auth.queries";
-import { Alert } from "@shared/utils/alert";
 import Button from "@shared/ui/Button";
-import { useAuth } from "@/features/auth/context/authContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { routePaths } from "@/app/router/paths";
+import { useAuth } from "@/features/auth/context/useAuth";
+import { useDoctorLogin } from "@/features/auth/hooks/authQueries";
+import { getAuthErrorMessage } from "@/features/auth/services";
 
 const SigninPage = () => {
-  // const { mutate: loginMutation, isPending } = useLogin();
-  const { login } = useAuth();
   const navigate = useNavigate();
+  const { login } = useAuth();
+  const doctorLoginMutation = useDoctorLogin();
 
   const { values, errors, handleChange, handleSubmit, updateError } = useForm({
     initialValues: {
@@ -34,24 +31,16 @@ const SigninPage = () => {
 
       return newErrors;
     },
-    onSubmit: (values) => {
-      // loginMutation(values, {
-      //   onSuccess: (data) => {
-      //     login(data.user, data.token);
-
-      //     Alert({
-      //       title: "Success",
-      //       text: "Login successful!",
-      //       icon: "success",
-      //       confirmButtonText: "OK",
-      //       onConfirm: () => navigate("/profile"),
-      //     });
-      //   },
-
-      //   onError: () => {
-      //     updateError("Error in Email or Password", "email");
-      //   },
-      // });
+    onSubmit: (formValues) => {
+      doctorLoginMutation.mutate(formValues, {
+        onSuccess: ({ user, token }) => {
+          login(user, token);
+          navigate(routePaths.doctorDashboard, { replace: true });
+        },
+        onError: (error) => {
+          updateError(getAuthErrorMessage(error), "email");
+        },
+      });
     },
   });
 
@@ -70,7 +59,7 @@ const SigninPage = () => {
             value={values.email}
             onChange={handleChange}
             error={errors.email}
-            className="bg-white"
+            // className="bg-white"
           />
 
           <PasswordInput
@@ -82,7 +71,11 @@ const SigninPage = () => {
             error={errors.password}
           />
 
-          <Button isLoading={false} className="py-2.5" type="submit">
+          <Button
+            isLoading={doctorLoginMutation.isPending}
+            className="py-2.5"
+            type="submit"
+          >
             Login
           </Button>
 

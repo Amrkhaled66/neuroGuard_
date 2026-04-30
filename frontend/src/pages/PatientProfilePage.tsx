@@ -5,7 +5,6 @@ import {
   KeyStatsCard,
   MedicationsCard,
   RiskAssessmentCard,
-  SeizureTrendCard,
 } from "@features/PatientProfilePage";
 
 export default function PatientProfilePage() {

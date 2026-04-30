@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
   setToken,
   clearToken,
@@ -8,26 +8,7 @@ import {
   getUser,
 } from "@shared/utils/authStorage";
 import type { IUser } from "@shared/interfaces/IUser";
-type AuthData = {
-  user: IUser | null;
-  token: string | null;
-};
-
-type AuthContextType = {
-  authData: AuthData;
-  login: (user: IUser, token: string) => void;
-  logout: () => void;
-  isAuthenticated: boolean;
-  updateUser: (user: IUser) => void;
-};
-
-const AuthContext = createContext<AuthContextType>({
-  authData: { user: null, token: null },
-  login: () => {},
-  logout: () => {},
-  isAuthenticated: false,
-  updateUser: () => {},
-});
+import { AuthContext, type AuthData } from "./authContextValue";
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
   const [authData, setAuthData] = useState<AuthData>(() => {
@@ -53,7 +34,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     clearToken();
     clearUser();
   };
-  const isAuthenticated = !!authData.token;
+  const isAuthenticated = !!authData.token && !!authData.user;
 
   const contextValue = {
     authData,
@@ -67,10 +48,3 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 }
-
-const useAuth = () => {
-  const context = useContext(AuthContext);
-  return context;
-};
-
-export { useAuth };

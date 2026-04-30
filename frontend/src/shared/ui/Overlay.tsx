@@ -11,8 +11,7 @@ const Overlay = ({
   return (
     <div
       onClick={() => {
-      
-        onClick && onClick();
+        onClick?.();
       }}
       style={{
         backgroundColor: bgColor,

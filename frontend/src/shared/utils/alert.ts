@@ -1,6 +1,6 @@
-type AlertIcon = "success" | "error" | "warning" | "info" | "question";
+export type AlertIcon = "success" | "error" | "warning" | "info" | "question";
 
-interface AlertConfig {
+export interface AlertConfig {
   title: string;
   text: string;
   icon: AlertIcon;

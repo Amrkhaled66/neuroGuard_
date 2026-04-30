@@ -1,6 +1,6 @@
 import React from "react";
 
-type ButtonVariant = "primary" | "outline" | "danger" | "ghost";
+export type ButtonVariant = "primary" | "outline" | "danger" | "ghost"| "warning";
 
 interface ButtonProps {
   className?: string;
@@ -24,6 +24,9 @@ const variantClasses: Record<ButtonVariant, string> = {
 
   ghost:
     "bg-transparent border-transparent text-brand-primary hover:bg-brand-primary/10",
+  
+  warning:
+    "bg-amber-500 border-amber-500 text-white hover:bg-transparent hover:text-amber-500",
 };
 
 const Button = ({

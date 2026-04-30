@@ -1,6 +1,9 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { topLevelRouteMap, patientSectionRouteMap } from "./routes";
 import { routePaths } from "./paths";
+import RequirePermission from "@/features/auth/components/RequirePermission";
+import PublicOnlyRoute from "@/features/auth/components/PublicOnlyRoute";
+import { PERMISSIONS } from "@/features/auth/permissions";
 import {
   MainLayout,
   DoctorDashboardLayout,
@@ -8,17 +11,16 @@ import {
 } from "@/layouts/index";
 
 export function AppRouter() {
-  
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Root redirect */}
-        <Route
-          path={routePaths.root}
-          element={<Navigate to={routePaths.signin} replace />}
-        />
+    <Routes>
+      {/* Root redirect */}
+      <Route
+        path={routePaths.root}
+        element={<Navigate to={routePaths.signin} replace />}
+      />
 
-        {/* Top-level routes */}
+      {/* Top-level routes */}
+      <Route element={<PublicOnlyRoute />}>
         <Route
           path={topLevelRouteMap.signin.path}
           element={<topLevelRouteMap.signin.Component />}
@@ -27,6 +29,18 @@ export function AppRouter() {
           path={topLevelRouteMap.signup.path}
           element={<topLevelRouteMap.signup.Component />}
         />
+      </Route>
+
+      <Route
+        path={routePaths.unauthorized}
+        element={<topLevelRouteMap.unauthorized.Component />}
+      />
+
+      <Route
+        element={
+          <RequirePermission permission={PERMISSIONS.ACCESS_DOCTOR_ROUTES} />
+        }
+      >
         <Route element={<MainLayout />}>
           <Route element={<DoctorDashboardLayout />}>
             <Route
@@ -69,7 +83,12 @@ export function AppRouter() {
             />
           </Route>
         </Route>
-      </Routes>
-    </BrowserRouter>
+      </Route>
+
+      <Route
+        path="*"
+        element={<Navigate to={routePaths.unauthorized} replace />}
+      />
+    </Routes>
   );
 }

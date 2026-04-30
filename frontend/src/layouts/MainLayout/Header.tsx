@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { LuMoonStar, LuSunMedium } from "react-icons/lu";
 import logo from "@/assets/logo2.svg";
 import avatar from "@/assets/avatar.svg";
-import { useTheme } from "@/shared/theme/ThemeProvider";
+import { useTheme } from "@/shared/theme/themeContext";
 
 const navItems = [
   { label: "Home", path: "/DoctorDashboardPage" },

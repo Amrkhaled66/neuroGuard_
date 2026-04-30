@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 type FormInputProps = {
   label: string;
-  name: string;
+  name?: string;
   type?: React.HTMLInputTypeAttribute;
   placeholder?: string;
   value?: string;
@@ -24,6 +24,7 @@ const FormInput: React.FC<FormInputProps> = ({
   required,
   className = "",
   error,
+  ...props
 }) => {
   const [isFocused, setIsFocused] = useState(false);
 
@@ -40,18 +41,19 @@ const FormInput: React.FC<FormInputProps> = ({
 
   return (
     <label className="flex flex-col gap-1">
-      <span className="text-start font-medium text-sm">{label}</span>
+      <span className="text-start text-sm font-medium">{label}</span>
       <div className="relative w-full">
         <input
           name={name}
           type={type}
+          {...props}
           placeholder={placeholder}
           value={value}
           onChange={onChange}
           onBlur={handleBlur}
           onFocus={handleFocus}
           required={required}
-          className={`w-full  text-sm px-2 py-3 border-0 border-b transition-colors focus:outline-none ${
+          className={`w-full border-0 border-b px-2 py-3 text-sm transition-colors focus:outline-none ${
             error
               ? "border-red-500 hover:bg-red-500/5"
               : "border-gray-400/40 hover:bg-blue-500/5"

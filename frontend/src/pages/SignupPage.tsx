@@ -1,61 +1,68 @@
-// import signupValidation from "src/utils/validators/signupValidators";
-
-// import { useSignup } from "src/hooks/queries/auth.queries";
-
-
-// import { getErrorMessage } from "@/utils/getErrorMessage";
-
-
 import React from "react";
 import AuthLayout from "@/layouts/AuthLayout";
-import { useNavigate } from "react-router-dom";
 import { useForm } from "@shared/hooks/useForm";
 import PasswordInput from "@shared/ui/PasswordInput";
 import FormInput from "@shared/ui/FormInput";
-// import { useLogin } from "src/hooks/queries/auth.queries";
-import { Alert } from "@shared/utils/alert";
 import Button from "@shared/ui/Button";
-import { useAuth } from "@/features/auth/context/authContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { routePaths } from "@/app/router/paths";
-
+import { useDoctorSignup } from "@/features/auth/hooks/authQueries";
+import { getAuthErrorMessage } from "@/features/auth/services";
 
 const SignupPage: React.FC = () => {
   const navigate = useNavigate();
-  // const { mutate, isPending } = useSignup();
-  const { login } = useAuth();
+  const doctorSignupMutation = useDoctorSignup();
   const { values, errors, handleChange, handleSubmit, updateError } = useForm({
     initialValues: {
       firstName: "",
       lastName: "",
       email: "",
+      clinicName: "",
       password: "",
       confirmPassword: "",
     },
-    // validate: signupValidation,
-    onSubmit: async (values) => {
-      // mutate(values, {
-      //   onSuccess: (data) => {
-      //     login(data.user, data.token);
-      //     Alert({
-      //       title: "Success",
-      //       text: "Signup successful!",
-      //       icon: "success",
-      //       confirmButtonText: "OK",
-      //       onConfirm: () => navigate("/profile"),
-      //     });
-      //     navigate("/profile");
-      //   },
-      //   onError: (error: any) => {
-      //     const {
-      //       status,
-      //       data,
-      //     } = error.response || {};
-      //     if (status === 400) {
-      //       updateError(getErrorMessage(error), "email");
-      //     }
-      //   },
-      // });
+    validate: (formValues) => {
+      const newErrors: Partial<typeof formValues> = {};
+
+      if (!formValues.firstName.trim()) {
+        newErrors.firstName = "First name is required";
+      }
+      if (!formValues.lastName.trim()) {
+        newErrors.lastName = "Last name is required";
+      }
+      if (!formValues.email.trim()) {
+        newErrors.email = "Email is required";
+      }
+      if (!formValues.clinicName.trim()) {
+        newErrors.clinicName = "Clinic name is required";
+      }
+      if (formValues.password.length < 6) {
+        newErrors.password = "Password must be at least 6 characters";
+      }
+      if (formValues.confirmPassword !== formValues.password) {
+        newErrors.confirmPassword = "Passwords do not match";
+      }
+
+      return newErrors;
+    },
+    onSubmit: async (formValues) => {
+      doctorSignupMutation.mutate(
+        {
+          firstName: formValues.firstName,
+          lastName: formValues.lastName,
+          email: formValues.email,
+          clinicName: formValues.clinicName,
+          password: formValues.password,
+        },
+        {
+          onSuccess: () => {
+            navigate(routePaths.signin, { replace: true });
+          },
+          onError: (error) => {
+            updateError(getAuthErrorMessage(error), "email");
+          },
+        },
+      );
     },
   });
 
@@ -98,6 +105,16 @@ const SignupPage: React.FC = () => {
             className="bg-white"
           />
 
+          <FormInput
+            label="Clinic Name"
+            name="clinicName"
+            placeholder="NeuroGuard Clinic"
+            value={values.clinicName}
+            onChange={handleChange}
+            error={errors.clinicName}
+            className="bg-white"
+          />
+
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-2">
             <PasswordInput
               label="Password"
@@ -118,7 +135,11 @@ const SignupPage: React.FC = () => {
             />
           </div>
 
-          <Button isLoading={false} type="submit" className="py-2.5">
+          <Button
+            isLoading={doctorSignupMutation.isPending}
+            type="submit"
+            className="py-2.5"
+          >
             Sign Up
           </Button>
           <p className="text-center text-strokeFont text-sm">

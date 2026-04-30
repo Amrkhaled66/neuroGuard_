@@ -1,25 +1,8 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { SkeletonTheme } from "react-loading-skeleton";
-
-type Theme = "light" | "dark";
-
-type ThemeContextValue = {
-  theme: Theme;
-  isDark: boolean;
-  setTheme: (theme: Theme) => void;
-  toggleTheme: () => void;
-};
+import { ThemeContext, type Theme } from "./themeContext";
 
 const STORAGE_KEY = "neuroguard-theme";
-
-const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 function getSystemTheme(): Theme {
   if (typeof window === "undefined") {
@@ -93,14 +76,4 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       </SkeletonTheme>
     </ThemeContext.Provider>
   );
-}
-
-export function useTheme() {
-  const context = useContext(ThemeContext);
-
-  if (!context) {
-    throw new Error("useTheme must be used within ThemeProvider");
-  }
-
-  return context;
 }
