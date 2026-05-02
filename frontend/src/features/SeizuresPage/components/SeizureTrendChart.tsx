@@ -20,18 +20,6 @@ export default function SeizureTrendChart({
             Longitudinal trend of neurological events
           </p>
         </div>
-
-        <div className="flex items-center gap-2">
-          <button className="app-surface-soft rounded-full px-3 py-1 text-xs font-semibold text-[var(--text-secondary)]">
-            30D
-          </button>
-          <button className="rounded-full bg-[var(--brand-primary)] px-3 py-1 text-xs font-semibold text-white">
-            90D
-          </button>
-          <button className="app-surface-soft rounded-full px-3 py-1 text-xs font-semibold text-[var(--text-secondary)]">
-            1Y
-          </button>
-        </div>
       </div>
 
       <div className="mt-8 h-[260px] rounded-2xl bg-[var(--surface-muted)]/40 p-4">

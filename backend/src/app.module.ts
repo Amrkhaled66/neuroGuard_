@@ -5,6 +5,9 @@ import { ConfigModule } from '@nestjs/config';
 import { DoctorsModule } from './doctors/doctors.module';
 import { AuthModule } from './auth/auth.module';
 import { PatientsModule } from './patients/patients.module';
+import { MedicationsModule } from './medications/medications.module';
+import { PatientMedicationsModule } from './patient-medications/patient-medications.module';
+import { MedicationLogsModule } from './medication-logs/medication-logs.module';
 
 @Module({
   imports: [
@@ -14,6 +17,9 @@ import { PatientsModule } from './patients/patients.module';
     DoctorsModule,
     AuthModule,
     PatientsModule,
+    MedicationsModule,
+    PatientMedicationsModule,
+    MedicationLogsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -81,7 +81,7 @@ const SignupPage: React.FC = () => {
               value={values.firstName}
               onChange={handleChange}
               error={errors.firstName}
-              className="bg-white"
+              
             />
             <FormInput
               label="Last Name"
@@ -90,7 +90,7 @@ const SignupPage: React.FC = () => {
               value={values.lastName}
               onChange={handleChange}
               error={errors.lastName}
-              className="bg-white"
+              
             />
           </div>
 
@@ -102,7 +102,7 @@ const SignupPage: React.FC = () => {
             value={values.email}
             onChange={handleChange}
             error={errors.email}
-            className="bg-white"
+            
           />
 
           <FormInput
@@ -112,7 +112,7 @@ const SignupPage: React.FC = () => {
             value={values.clinicName}
             onChange={handleChange}
             error={errors.clinicName}
-            className="bg-white"
+            
           />
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-2">

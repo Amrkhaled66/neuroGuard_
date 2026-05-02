@@ -94,7 +94,7 @@ const Alert = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleCancel}>
+    <Modal isOpen={isOpen} showCloseButton={false} onClose={handleCancel}>
       <div className="mx-auto max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl">
         {/* Content */}
         <div className="p-8 text-center">

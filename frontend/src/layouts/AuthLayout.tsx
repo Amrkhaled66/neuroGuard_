@@ -60,7 +60,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
           initial="hidden"
           animate="visible"
         >
-          <div className="border-b">
+          <div className="">
             <Link to="/">
               <img src={logo} alt="Neuro Guard" className="h-24" />
             </Link>

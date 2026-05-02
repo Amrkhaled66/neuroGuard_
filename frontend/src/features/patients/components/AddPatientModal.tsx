@@ -4,10 +4,6 @@ import FormInput from "@/shared/ui/FormInput";
 import PasswordInput from "@/shared/ui/PasswordInput";
 // import { useForm } from "@/shared/hooks/useForm";
 import { useCreatePatient } from "@/features/patients/hooks";
-import {
-  getPatientsErrorMessage,
-  type PatientGender,
-} from "@/features/patients/services";
 import DropdownMenu from "@/shared/ui/DropdownMenu";
 import { Alert } from "@/shared/utils/alert";
 
@@ -29,7 +25,7 @@ const initialValues: AddPatientFormValues = {
   email: "",
   medicalId: "",
   birthDate: "",
-  gender: "male" as PatientGender,
+  gender: "male",
   password: "",
 };
 
@@ -72,8 +68,7 @@ export default function AddPatientModal({
           });
         },
         onError: (error) => {
-          const message = getPatientsErrorMessage(error);
-          setError("email", { message });
+          setError("email", { message:error.message });
         },
       },
     );

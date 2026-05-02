@@ -42,7 +42,7 @@ const Modal = ({
                 type="button"
                 aria-label="Close modal"
                 onClick={onClose}
-                className="app-surface absolute top-3 right-3 z-10 flex size-9 items-center justify-center rounded-full text-lg text-[var(--text-secondary)] transition-colors hover:text-brand-primary"
+                className="app-surface hover:text-brand-primary absolute top-3 right-3 z-10 flex size-9 items-center justify-center rounded-full text-lg text-[var(--text-secondary)] transition-colors"
               >
                 <IoClose />
               </button>

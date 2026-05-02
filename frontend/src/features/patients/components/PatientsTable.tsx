@@ -29,11 +29,12 @@ const patientColumns: TableColumn<Patient>[] = [
     grow: 2.2,
     cell: (row) => (
       <div className="flex items-center gap-3 py-1 sm:gap-4">
-        <img
+        {/* <img
           src={row.avatar}
           alt={row.name}
           className="h-10 w-10 rounded-full object-cover sm:h-12 sm:w-12"
-        />
+        /> */}
+        <div className="size-10 rounded-full bg-brand-primary-soft "></div>
         <div className="min-w-0">
           <p className="app-text-primary truncate text-base leading-none font-semibold sm:text-[18px]">
             {row.name}

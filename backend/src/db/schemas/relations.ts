@@ -1,14 +1,46 @@
 import { relations } from 'drizzle-orm';
 import { doctors } from './doctors.schema';
 import { patients } from './patients.schema';
+import { medications } from './medications.schema';
+import { patientMedications } from './patient-medications.schema';
+import { medicationLogs } from './medication-logs.schema';
 
 export const doctorsRelations = relations(doctors, ({ many }) => ({
   patients: many(patients),
+  medications: many(medications),
 }));
 
-export const patientsRelations = relations(patients, ({ one }) => ({
+export const patientsRelations = relations(patients, ({ one, many }) => ({
   doctor: one(doctors, {
     fields:     [patients.doctorId],
     references: [doctors.id],
+  }),
+  patientMedications: many(patientMedications),
+}));
+
+export const medicationsRelations = relations(medications, ({ one, many }) => ({
+  doctor: one(doctors, {
+    fields: [medications.doctorId],
+    references: [doctors.id],
+  }),
+  patientMedications: many(patientMedications),
+}));
+
+export const patientMedicationsRelations = relations(patientMedications, ({ one, many }) => ({
+  patient: one(patients, {
+    fields: [patientMedications.patientId],
+    references: [patients.id],
+  }),
+  medication: one(medications, {
+    fields: [patientMedications.medicationId],
+    references: [medications.id],
+  }),
+  logs: many(medicationLogs),
+}));
+
+export const medicationLogsRelations = relations(medicationLogs, ({ one }) => ({
+  patientMedication: one(patientMedications, {
+    fields: [medicationLogs.patientMedicationId],
+    references: [patientMedications.id],
   }),
 }));
