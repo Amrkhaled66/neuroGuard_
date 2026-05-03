@@ -2,7 +2,7 @@ import { pgTable as table, varchar, date, integer, text } from 'drizzle-orm/pg-c
 import baseColumns from '../baseColumns';
 import { doctors } from './doctors.schema';
 import { genderEnum } from './enums';
-
+import { patientStatusEnum } from './enums';
 export const patients = table('patients', {
   ...baseColumns,
     email: text().notNull().unique(),
@@ -12,5 +12,6 @@ export const patients = table('patients', {
     .notNull()
     .references(() => doctors.id, { onDelete: 'cascade' }),
   birthDate: date('birth_date').notNull(),
+  status: patientStatusEnum('status').default('stable'),
   gender: genderEnum('gender'),
 });

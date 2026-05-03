@@ -29,6 +29,7 @@ export class PatientsController {
   }
 
   @Get()
+
   findAll() {
     return this.patientsService.findAll();
   }
