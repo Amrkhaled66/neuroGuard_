@@ -26,6 +26,11 @@ export default function PatientTabs({ patientId }: Props) {
         label: "Seizures",
         to: `/patients/${patientId}/${patientSectionRouteMap.seizures.path}`,
       },
+      {
+        key: "medications",
+        label: "Medications",
+        to: `/patients/${patientId}/${patientSectionRouteMap.medications.path}`,
+      },
       // {
       //   key: "notes",
       //   label: "Notes",

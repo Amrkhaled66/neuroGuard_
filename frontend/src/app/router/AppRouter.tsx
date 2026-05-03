@@ -81,6 +81,10 @@ export function AppRouter() {
               path={patientSectionRouteMap.notifications.path}
               element={<patientSectionRouteMap.notifications.Component />}
             />
+            <Route
+              path={patientSectionRouteMap.medications.path}
+              element={<patientSectionRouteMap.medications.Component />}
+            />
           </Route>
         </Route>
       </Route>

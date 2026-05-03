@@ -9,6 +9,7 @@ import {
   SeizuresPage,
   SignupPage,
   UnauthorizedPage,
+  MedicationsPage,
 } from "@/pages";
 import { routePaths } from "./paths";
 
@@ -30,6 +31,12 @@ export const patientSectionRouteMap = {
     label: "Seizures",
     path: "seizures",
     Component: SeizuresPage,
+  },
+  medications: {
+    name: "medications",
+    label: "Medications",
+    path: "medications",
+    Component: MedicationsPage,
   },
   notes: {
     name: "notes",

@@ -29,18 +29,10 @@ const patientColumns: TableColumn<Patient>[] = [
     grow: 2.2,
     cell: (row) => (
       <div className="flex items-center gap-3 py-1 sm:gap-4">
-        {/* <img
-          src={row.avatar}
-          alt={row.name}
-          className="h-10 w-10 rounded-full object-cover sm:h-12 sm:w-12"
-        /> */}
-        <div className="size-10 rounded-full bg-brand-primary-soft "></div>
+        <div className="bg-brand-primary-soft size-10 rounded-full"></div>
         <div className="min-w-0">
           <p className="app-text-primary truncate text-base leading-none font-semibold sm:text-[18px]">
             {row.name}
-          </p>
-          <p className="app-text-secondary mt-1 truncate text-sm sm:text-[15px]">
-            {row.subtitle}
           </p>
         </div>
       </div>
@@ -117,8 +109,6 @@ const patientColumns: TableColumn<Patient>[] = [
   },
 ];
 
-
-
 const PatientsTable = () => {
   const isLoading = false;
   const [activeStatus, setActiveStatus] = useState<PatientStatus | "all">(
@@ -168,7 +158,6 @@ const PatientsTable = () => {
 };
 
 export default PatientsTable;
-
 
 const patients: Patient[] = [
   {

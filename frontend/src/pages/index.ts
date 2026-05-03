@@ -8,3 +8,4 @@ export * from "./PatientsPage";
 export { default as SeizuresPage } from "./SeizuresPage";
 export { default as SignupPage } from "./SignupPage";
 export { default as UnauthorizedPage } from "./UnauthorizedPage";
+export { default as MedicationsPage } from "./MedicationsPage";
