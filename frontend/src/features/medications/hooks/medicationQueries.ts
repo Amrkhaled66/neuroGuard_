@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
+  createMedication,
   getMedications,
   getPatientMedications,
   getPatientMedication,
@@ -8,28 +9,34 @@ import {
   deletePatientMedication,
 } from "@/features/medications/services";
 import type {
-  AddPatientMedicationFormValues,
+  PatientMedicationMutationPayload,
   UpdatePatientMedicationFormValues,
 } from "@/features/medications/schemas/medicationSchema";
+import type { CreateMedicationPayload } from "@/features/medications/services";
 
 export const medicationQueryKeys = {
   all: ["medications"] as const,
-  lists: ["medications", "list"] as const,
-  list: (patientId: number) => ["medications", "list", patientId] as const,
-  detail: (patientId: number, medId: number) => ["medications", patientId, medId] as const,
+  catalog: ["medications", "catalog"] as const,
+  patientList: (patientId: number) =>
+    ["patients", patientId, "medications"] as const,
+  detail: (patientId: number, medId: number) =>
+    ["patients", patientId, "medications", medId] as const,
 };
 
-export function useMedications() {
+export function useMedications(options?: { enabled?: boolean }) {
   return useQuery({
-    queryKey: medicationQueryKeys.lists,
+    queryKey: medicationQueryKeys.catalog,
     queryFn: () => getMedications(),
+    enabled: options?.enabled ?? true,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
 export function usePatientMedications(patientId: number) {
   return useQuery({
-    queryKey: medicationQueryKeys.list(patientId),
+    queryKey: medicationQueryKeys.patientList(patientId),
     queryFn: () => getPatientMedications(patientId),
+    enabled: !!patientId,
   });
 }
 
@@ -45,10 +52,29 @@ export function useAddPatientMedication() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ patientId, payload }: { patientId: number; payload: AddPatientMedicationFormValues }) =>
+    mutationFn: ({
+      patientId,
+      payload,
+    }: {
+      patientId: number;
+      payload: PatientMedicationMutationPayload;
+    }) =>
       addPatientMedication(patientId, payload),
     onSuccess: (_, { patientId }) => {
-      void queryClient.invalidateQueries({ queryKey: medicationQueryKeys.list(patientId) });
+      void queryClient.invalidateQueries({
+        queryKey: medicationQueryKeys.patientList(patientId),
+      });
+    },
+  });
+}
+
+export function useCreateMedication() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: CreateMedicationPayload) => createMedication(payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: medicationQueryKeys.catalog });
     },
   });
 }
@@ -67,8 +93,12 @@ export function useUpdatePatientMedication() {
       payload: UpdatePatientMedicationFormValues;
     }) => updatePatientMedication(patientId, medId, payload),
     onSuccess: (_, { patientId, medId }) => {
-      void queryClient.invalidateQueries({ queryKey: medicationQueryKeys.list(patientId) });
-      void queryClient.invalidateQueries({ queryKey: medicationQueryKeys.detail(patientId, medId) });
+      void queryClient.invalidateQueries({
+        queryKey: medicationQueryKeys.patientList(patientId),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: medicationQueryKeys.detail(patientId, medId),
+      });
     },
   });
 }
@@ -80,7 +110,9 @@ export function useDeletePatientMedication() {
     mutationFn: ({ patientId, medId }: { patientId: number; medId: number }) =>
       deletePatientMedication(patientId, medId),
     onSuccess: (_, { patientId }) => {
-      void queryClient.invalidateQueries({ queryKey: medicationQueryKeys.list(patientId) });
+      void queryClient.invalidateQueries({
+        queryKey: medicationQueryKeys.patientList(patientId),
+      });
     },
   });
 }

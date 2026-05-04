@@ -1,12 +1,27 @@
 export type SessionStatus = "analyzed" | "processing" | "failed";
 
+export type PatientSession = {
+  id: number;
+  patientId: number;
+  filePath: string | null;
+  duration: number;
+  status: SessionStatus;
+  note: string | null;
+  channelCount: number;
+  createdAt: string | null;
+  updatedAt: string | null;
+  seizureCount: number;
+};
+
 export type SessionHistory = {
-  id: string;
+  id: number;
   date: string;
-  duration: string;
+  duration: number;
   channels: number;
   seizures: number;
   status: SessionStatus;
+  filePath: string | null;
+  note: string | null;
 };
 
 export const sessionStatusMap: Record<
@@ -34,45 +49,30 @@ export const sessionStatusMap: Record<
   },
 };
 
-export const sessions: SessionHistory[] = [
-  {
-    id: "1",
-    date: "2024-12-03",
-    duration: "2h 15m",
-    channels: 21,
-    seizures: 2,
-    status: "analyzed",
-  },
-  {
-    id: "2",
-    date: "2024-12-01",
-    duration: "4h 30m",
-    channels: 21,
-    seizures: 0,
-    status: "analyzed",
-  },
-  {
-    id: "3",
-    date: "2024-11-28",
-    duration: "1h 45m",
-    channels: 21,
-    seizures: 1,
-    status: "analyzed",
-  },
-  {
-    id: "4",
-    date: "2024-11-25",
-    duration: "3h 00m",
-    channels: 21,
-    seizures: 0,
-    status: "analyzed",
-  },
-  {
-    id: "5",
-    date: "2024-11-20",
-    duration: "2h 30m",
-    channels: 21,
-    seizures: 3,
-    status: "analyzed",
-  },
-];
+export function formatSessionDate(value: string) {
+  const parsedDate = new Date(value);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("en", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(parsedDate);
+}
+
+export function formatSessionDuration(minutes: number) {
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+
+  if (hours === 0) {
+    return `${remainingMinutes}m`;
+  }
+
+  if (remainingMinutes === 0) {
+    return `${hours}h`;
+  }
+
+  return `${hours}h ${remainingMinutes}m`;
+}

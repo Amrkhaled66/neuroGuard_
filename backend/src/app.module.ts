@@ -8,6 +8,8 @@ import { PatientsModule } from './patients/patients.module';
 import { MedicationsModule } from './medications/medications.module';
 import { PatientMedicationsModule } from './patient-medications/patient-medications.module';
 import { MedicationLogsModule } from './medication-logs/medication-logs.module';
+import { SessionsModule } from './sessions/sessions.module';
+import { SeizureEventsModule } from './seizure-events/seizure-events.module';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { MedicationLogsModule } from './medication-logs/medication-logs.module';
     MedicationsModule,
     PatientMedicationsModule,
     MedicationLogsModule,
+    SessionsModule,
+    SeizureEventsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

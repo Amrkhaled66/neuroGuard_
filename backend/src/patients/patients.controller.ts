@@ -7,6 +7,9 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { PatientsService } from './patients.service';
 import { CreatePatientDto } from './dto/create-patient.dto';
@@ -18,20 +21,27 @@ import { Roles as RoleEnum } from 'src/common/enums/roles.enum';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 @Controller('patients')
 export class PatientsController {
-  constructor(private readonly patientsService: PatientsService,
-  ) {}
+  constructor(private readonly patientsService: PatientsService) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles([RoleEnum.DOCTOR])
   @Post()
-  create(@Body() createPatientDto: CreatePatientDto,@CurrentUser('id') doctorId: number) {
-    return this.patientsService.create(createPatientDto,doctorId);
+  create(
+    @Body() createPatientDto: CreatePatientDto,
+    @CurrentUser('id') doctorId: number,
+  ) {
+    return this.patientsService.create(createPatientDto, doctorId);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([RoleEnum.DOCTOR])
   @Get()
-
-  findAll() {
-    return this.patientsService.findAll();
+  findAll(
+    @CurrentUser('id') doctorId: number,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+  ) {
+    return this.patientsService.findAll(doctorId, page, limit);
   }
 
   @Get(':id')

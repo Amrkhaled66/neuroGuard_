@@ -11,6 +11,7 @@ type FormInputProps = {
   required?: boolean;
   className?: string;
   error?: string;
+  min?: string|number;
 };
 
 const FormInput: React.FC<FormInputProps> = ({
@@ -24,6 +25,7 @@ const FormInput: React.FC<FormInputProps> = ({
   required,
   className = "",
   error,
+  min,
   ...props
 }) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -50,9 +52,11 @@ const FormInput: React.FC<FormInputProps> = ({
           placeholder={placeholder}
           value={value}
           onChange={onChange}
+          min={type === "number" ? min : undefined}
           onBlur={handleBlur}
           onFocus={handleFocus}
           required={required}
+          // {...(type === "number" && { min })}
           className={`w-full border-0 border-b px-2 py-3 text-sm transition-colors focus:outline-none ${
             error
               ? "border-red-500 hover:bg-red-500/5"

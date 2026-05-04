@@ -3,5 +3,7 @@ export * from './schemas/doctors.schema';
 export * from './schemas/medications.schema';
 export * from './schemas/patient-medications.schema';
 export * from './schemas/medication-logs.schema';
+export * from './schemas/sessions.schema';
+export * from './schemas/seizure-events.schema';
 export * from './schemas/enums';
 export * from './schemas/relations';

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Modal from "@/shared/ui/Modal";
@@ -9,23 +9,29 @@ import { Alert } from "@/shared/utils/alert";
 import {
   addPatientMedicationSchema,
   type AddPatientMedicationFormValues,
+  type PatientMedicationMutationPayload,
+  medicationForms,
 } from "../schemas/medicationSchema";
 import {
   useMedications,
+  useCreateMedication,
   useAddPatientMedication,
   useUpdatePatientMedication,
-  usePatientMedication,
 } from "../hooks";
+import type { PatientMedication } from "../services";
 
 type AddMedicationModalProps = {
   isOpen: boolean;
   onClose: () => void;
   patientId: number;
-  editingMedicationId?: number;
+  editingMedication?: PatientMedication | null;
 };
 
 const initialValues: AddPatientMedicationFormValues = {
-  medicationId: 0,
+  medicationSource: "existing",
+  medicationId: undefined,
+  newMedicationName: undefined,
+  newMedicationForm: undefined,
   dosage: "",
   frequency: "",
   instruction: "",
@@ -38,20 +44,16 @@ export default function AddMedicationModal({
   isOpen,
   onClose,
   patientId,
-  editingMedicationId,
+  editingMedication,
 }: AddMedicationModalProps) {
-  const [isEditMode, setIsEditMode] = useState(false);
-
-  const { data: medicationsData,isPending } = useMedications();
+  const isEditMode = !!editingMedication;
+  const { data: medicationsData = [], isPending } = useMedications({
+    enabled: isOpen,
+  });
+  const createMedicationMutation = useCreateMedication();
   const addMutation = useAddPatientMedication();
   const updateMutation = useUpdatePatientMedication();
-  const { data: editingMedicationData } = usePatientMedication(
-    patientId,
-    editingMedicationId || 0,
-    { enabled: isEditMode && !!editingMedicationId },
-  );
 
-  if (isPending) return
   const {
     register,
     handleSubmit,
@@ -59,101 +61,131 @@ export default function AddMedicationModal({
     control,
     reset,
     setValue,
+    watch,
   } = useForm<AddPatientMedicationFormValues>({
     resolver: zodResolver(addPatientMedicationSchema),
     defaultValues: initialValues,
     mode: "onSubmit",
   });
 
+  const medicationSource = watch("medicationSource");
+
   useEffect(() => {
     if (!isOpen) {
-      reset();
-      setIsEditMode(false);
+      reset(initialValues);
       return;
     }
 
-    if (editingMedicationId && isOpen) {
-      setIsEditMode(true);
-      if (editingMedicationData?.data) {
-        const med = editingMedicationData.data;
-        setValue("medicationId", med.medicationId);
-        setValue("dosage", med.dosage || "");
-        setValue("frequency", med.frequency || "");
-        setValue("instruction", med.instruction || "");
-        setValue("startDate", med.startDate);
-        setValue("endDate", med.endDate || "");
-        setValue("status", med.status);
-      }
-    } else {
-      setIsEditMode(false);
-      reset();
+    if (editingMedication) {
+      reset({
+        ...initialValues,
+        medicationSource: "existing",
+        medicationId: editingMedication.medicationId,
+        dosage: editingMedication.dosage ?? "",
+        frequency: editingMedication.frequency ?? "",
+        instruction: editingMedication.instruction ?? "",
+        startDate: editingMedication.startDate,
+        endDate: editingMedication.endDate ?? "",
+        status: editingMedication.status,
+      });
+      return;
     }
-  }, [isOpen, editingMedicationId, editingMedicationData, reset, setValue]);
 
-  console.log(medicationsData?.data)
-  const medications =
-    medicationsData?.data && medicationsData.data.length > 0
-      ? medicationsData?.data?.map((med) => ({
-          label: `${med.name} (${med.form})`,
-          value: med.id.toString(),
-        }))
-      : [];
+    reset(initialValues);
+  }, [isOpen, editingMedication, reset]);
 
-  const onSubmit = (data: AddPatientMedicationFormValues) => {
-    if (isEditMode && editingMedicationId) {
-      updateMutation.mutate(
-        {
+  useEffect(() => {
+    if (
+      isOpen &&
+      !isEditMode &&
+      medicationsData.length === 0 &&
+      medicationSource !== "new"
+    ) {
+      setValue("medicationSource", "new");
+    }
+  }, [isOpen, isEditMode, medicationSource, medicationsData.length, setValue]);
+
+  const medications = medicationsData.map((med) => ({
+    label: `${med.name} (${med.form})`,
+    value: med.id.toString(),
+  }));
+
+  const medicationFormItems = medicationForms.map((form) => ({
+    label: form.charAt(0).toUpperCase() + form.slice(1),
+    value: form,
+  }));
+
+  const buildPatientMedicationPayload = (
+    data: AddPatientMedicationFormValues,
+    medicationId: number,
+  ): PatientMedicationMutationPayload => ({
+    medicationId,
+    dosage: data.dosage?.trim() ? data.dosage.trim() : undefined,
+    frequency: data.frequency?.trim() ? data.frequency.trim() : undefined,
+    instruction: data.instruction?.trim() ? data.instruction.trim() : undefined,
+    startDate: data.startDate,
+    endDate: data.endDate?.trim() ? data.endDate.trim() : undefined,
+    status: data.status,
+  });
+
+  const onSubmit = async (data: AddPatientMedicationFormValues) => {
+    try {
+      let medicationId = data.medicationId;
+
+      if (data.medicationSource === "new") {
+        const createdMedication = await createMedicationMutation.mutateAsync({
+          name: data.newMedicationName?.trim() ?? "",
+          form: data.newMedicationForm!,
+        });
+        medicationId = createdMedication.id;
+      }
+
+      const payload = buildPatientMedicationPayload(data, medicationId!);
+
+      if (isEditMode && editingMedication) {
+        await updateMutation.mutateAsync({
           patientId,
-          medId: editingMedicationId,
-          payload: data,
-        },
-        {
-          onSuccess: () => {
-            onClose();
-            Alert({
-              title: "Success",
-              text: "Medication updated successfully.",
-              icon: "success",
-              confirmButtonText: "OK",
-            });
-          },
-          onError: (error) => {
-            Alert({
-              title: "Error",
-              text: error.message || "Failed to update medication",
-              icon: "error",
-              confirmButtonText: "OK",
-            });
-          },
-        },
-      );
-    } else {
-      addMutation.mutate(
-        { patientId, payload: data },
-        {
-          onSuccess: () => {
-            onClose();
-            Alert({
-              title: "Success",
-              text: "Medication added successfully.",
-              icon: "success",
-              confirmButtonText: "OK",
-            });
-          },
-          onError: (error) => {
-            Alert({
-              title: "Error",
-              text: error.message || "Failed to add medication",
-              icon: "error",
-              confirmButtonText: "OK",
-            });
-          },
-        },
-      );
+          medId: editingMedication.id,
+          payload,
+        });
+        Alert({
+          title: "Success",
+          text: "Medication updated successfully.",
+          icon: "success",
+          confirmButtonText: "OK",
+        });
+      } else {
+        await addMutation.mutateAsync({ patientId, payload });
+        Alert({
+          title: "Success",
+          text: "Medication added successfully.",
+          icon: "success",
+          confirmButtonText: "OK",
+        });
+      }
+
+      onClose();
+      reset(initialValues);
+    } catch (error) {
+      Alert({
+        title: "Error",
+        text:
+          error instanceof Error
+            ? error.message
+            : isEditMode
+              ? "Failed to update medication"
+              : "Failed to add medication",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
     }
   };
 
-  const isLoading = addMutation.isPending || updateMutation.isPending;
+  const isLoading =
+    isPending ||
+    addMutation.isPending ||
+    updateMutation.isPending ||
+    createMedicationMutation.isPending;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -167,19 +199,75 @@ export default function AddMedicationModal({
           </p>
         </div>
 
-        <Controller
-          name="medicationId"
-          control={control}
-          render={({ field, fieldState }) => (
-            <DropdownMenu
-              label="Medication"
-              value={field.value.toString()}
-              onChange={(value) => field.onChange(parseInt(value))}
-              error={fieldState.error?.message}
-              items={medications}
+        <div className="grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1">
+          <button
+            type="button"
+            onClick={() => setValue("medicationSource", "existing")}
+            className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+              medicationSource === "existing"
+                ? "bg-white text-slate-900 shadow-sm"
+                : "text-slate-600"
+            }`}
+          >
+            Use Existing
+          </button>
+          <button
+            type="button"
+            onClick={() => setValue("medicationSource", "new")}
+            className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+              medicationSource === "new"
+                ? "bg-white text-slate-900 shadow-sm"
+                : "text-slate-600"
+            }`}
+          >
+            Create New
+          </button>
+        </div>
+
+        {medicationSource === "existing" ? (
+          <Controller
+            name="medicationId"
+            control={control}
+            render={({ field, fieldState }) => (
+              <DropdownMenu
+                loading={isPending}
+                label="Medication"
+                value={field.value?.toString()}
+                onChange={(value) => field.onChange(parseInt(value, 10))}
+                error={fieldState.error?.message}
+                items={medications}
+                placeholder={
+                  medications.length === 0
+                    ? "No medications available"
+                    : "Select medication"
+                }
+              />
+            )}
+          />
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <FormInput
+              label="Medication Name"
+              {...register("newMedicationName")}
+              placeholder="e.g., Keppra"
+              error={errors["newMedicationName"]?.message}
             />
-          )}
-        />
+            <Controller
+              name="newMedicationForm"
+              control={control}
+              render={({ field, fieldState }) => (
+                <DropdownMenu
+                  label="Medication Form"
+                  value={field.value}
+                  onChange={field.onChange}
+                  error={fieldState.error?.message}
+                  items={medicationFormItems}
+                  placeholder="Select form"
+                />
+              )}
+            />
+          </div>
+        )}
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FormInput
@@ -239,7 +327,10 @@ export default function AddMedicationModal({
           <Button
             type="button"
             variant="outline"
-            onClick={onClose}
+            onClick={() => {
+              reset(initialValues);
+              onClose();
+            }}
             disabled={isLoading}
           >
             Cancel

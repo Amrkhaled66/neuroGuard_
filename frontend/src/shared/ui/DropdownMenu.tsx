@@ -14,6 +14,7 @@ type Props = {
   error?: string;
   items: DropdownItem[];
   onChange: (value: string) => void;
+  loading?: boolean;
 };
 
 export default function DropdownField({
@@ -23,6 +24,7 @@ export default function DropdownField({
   error,
   items,
   onChange,
+  loading=false,
 }: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -68,25 +70,31 @@ export default function DropdownField({
 
         {/* Menu */}
         {open && (
-          <div className="absolute z-10 mt-2 max-h-60 overflow-y-auto w-full rounded-xl border border-gray-200 bg-white p-1 shadow-lg">
-            {items.map((item) => (
-              <button
-                key={item.value}
-                type="button"
-                disabled={item.disabled}
-                onClick={() => {
-                  if (!item.disabled) {
-                    onChange(item.value);
-                    setOpen(false);
-                  }
-                }}
-                className={`flex w-full items-center rounded-lg px-3 py-2 text-sm transition hover:bg-gray-100 ${
-                  item.disabled ? "cursor-not-allowed opacity-50" : ""
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
+          <div className="absolute z-10 mt-2 max-h-60 w-full overflow-y-auto rounded-xl border border-gray-200 bg-white p-1 shadow-lg">
+            {loading ? (
+              <div className="flex h-full items-center justify-center py-4">
+                <span className="border-b-brand-primary size-5 animate-spin border-b-2 rounded-full "></span>
+              </div>
+            ) : (
+              items.map((item) => (
+                <button
+                  key={item.value}
+                  type="button"
+                  disabled={item.disabled}
+                  onClick={() => {
+                    if (!item.disabled) {
+                      onChange(item.value);
+                      setOpen(false);
+                    }
+                  }}
+                  className={`flex w-full items-center rounded-lg px-3 py-2 text-sm transition hover:bg-gray-100 ${
+                    item.disabled ? "cursor-not-allowed opacity-50" : ""
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))
+            )}
           </div>
         )}
       </div>

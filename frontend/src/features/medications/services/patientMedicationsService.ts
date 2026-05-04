@@ -1,5 +1,8 @@
 import { axiosPrivate } from "@/shared/lib/axios";
-import type { AddPatientMedicationFormValues, UpdatePatientMedicationFormValues } from "../schemas/medicationSchema";
+import type {
+  PatientMedicationMutationPayload,
+  UpdatePatientMedicationFormValues,
+} from "../schemas/medicationSchema";
 
 export interface PatientMedication {
   id: number;
@@ -14,15 +17,25 @@ export interface PatientMedication {
 }
 
 export function getPatientMedications(patientId: number) {
-  return axiosPrivate.get<PatientMedication[]>(`/patients/${patientId}/medications`);
+  return axiosPrivate.get<PatientMedication[], PatientMedication[]>(
+    `/patients/${patientId}/medications`,
+  );
 }
 
 export function getPatientMedication(patientId: number, medId: number) {
-  return axiosPrivate.get<PatientMedication>(`/patients/${patientId}/medications/${medId}`);
+  return axiosPrivate.get<PatientMedication, PatientMedication>(
+    `/patients/${patientId}/medications/${medId}`,
+  );
 }
 
-export function addPatientMedication(patientId: number, payload: AddPatientMedicationFormValues) {
-  return axiosPrivate.post<PatientMedication>(`/patients/${patientId}/medications`, payload);
+export function addPatientMedication(
+  patientId: number,
+  payload: PatientMedicationMutationPayload,
+) {
+  return axiosPrivate.post<PatientMedication, PatientMedication>(
+    `/patients/${patientId}/medications`,
+    payload,
+  );
 }
 
 export function updatePatientMedication(
@@ -30,7 +43,10 @@ export function updatePatientMedication(
   medId: number,
   payload: UpdatePatientMedicationFormValues
 ) {
-  return axiosPrivate.patch<PatientMedication>(`/patients/${patientId}/medications/${medId}`, payload);
+  return axiosPrivate.patch<PatientMedication, PatientMedication>(
+    `/patients/${patientId}/medications/${medId}`,
+    payload,
+  );
 }
 
 export function deletePatientMedication(patientId: number, medId: number) {

@@ -5,15 +5,10 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  Min,
 } from 'class-validator';
 
 import { patientMedicationStatusEnum } from 'src/db/schemas/enums';
 export class CreatePatientMedicationDto {
-  @IsInt()
-  @IsNotEmpty()
-  patientId!: number;
-
   @IsInt()
   @IsNotEmpty()
   medicationId!: number;

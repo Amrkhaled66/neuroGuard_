@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import type { TableColumn } from "react-data-table-component";
 import { BsFileTextFill } from "react-icons/bs";
 import { Link } from "react-router-dom";
@@ -10,26 +10,37 @@ import type { PatientStatus } from "@/shared/interfaces/PatientStatus";
 import PatientsTableSkeleton from "@/shared/ui/skeletons/TableSkeleton";
 import PatientsStatusFilters from "./PatientsStatusFilters";
 import PatientsTableSearch from "./PatientsTableSearch";
+import { usePatientsQuery } from "../hooks";
+import type { PatientsListItem } from "../services/patientsListService";
 
-type Patient = {
-  id: string;
-  name: string;
-  subtitle: string;
-  age: number;
-  medicalId: string;
-  eegFiles: number;
+type PatientRow = PatientsListItem & {
   lastSession: string;
-  status: PatientStatus;
-  avatar: string;
 };
 
-const patientColumns: TableColumn<Patient>[] = [
+const formatLastSession = (lastSessionDate: string | null) => {
+  if (!lastSessionDate) {
+    return "No sessions yet";
+  }
+
+  const parsedDate = new Date(lastSessionDate);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return lastSessionDate;
+  }
+
+  return new Intl.DateTimeFormat("en", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(parsedDate);
+};
+
+const patientColumns: TableColumn<PatientRow>[] = [
   {
     name: "Patient Name",
     grow: 2.2,
     cell: (row) => (
       <div className="flex items-center gap-3 py-1 sm:gap-4">
-        <div className="bg-brand-primary-soft size-10 rounded-full"></div>
+        <div className="bg-brand-primary-soft size-10 rounded-full" />
         <div className="min-w-0">
           <p className="app-text-primary truncate text-base leading-none font-semibold sm:text-[18px]">
             {row.name}
@@ -64,7 +75,7 @@ const patientColumns: TableColumn<Patient>[] = [
       <div className="flex items-center gap-2 whitespace-nowrap text-emerald-600">
         <BsFileTextFill size={16} />
         <span className="app-text-primary font-medium">
-          {String(row.eegFiles).padStart(2, "0")} Files
+          {String(row.sessionFilesNumber).padStart(2, "0")} Files
         </span>
       </div>
     ),
@@ -82,16 +93,18 @@ const patientColumns: TableColumn<Patient>[] = [
     name: "Status",
     right: true,
     minWidth: "160px",
-    cell: (row) => (
-      <div
-        className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-[11px] font-semibold tracking-[0.08em] whitespace-nowrap uppercase sm:px-4 sm:text-xs ${statusMap[row.status].textClass}`}
-      >
-        <span
-          className={`h-2.5 w-2.5 rounded-full ${statusMap[row.status].dotClass}`}
-        />
-        {statusMap[row.status].label}
-      </div>
-    ),
+    cell: (row) => {
+      const status = statusMap[row.status];
+
+      return (
+        <div
+          className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-[11px] font-semibold tracking-[0.08em] whitespace-nowrap uppercase sm:px-4 sm:text-xs ${status.textClass}`}
+        >
+          <span className={`h-2.5 w-2.5 rounded-full ${status.dotClass}`} />
+          {status.label}
+        </div>
+      );
+    },
   },
   {
     name: "Profile",
@@ -110,31 +123,63 @@ const patientColumns: TableColumn<Patient>[] = [
 ];
 
 const PatientsTable = () => {
-  const isLoading = false;
   const [activeStatus, setActiveStatus] = useState<PatientStatus | "all">(
     "all",
   );
+  const [searchValue, setSearchValue] = useState("");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(5);
 
-  const filteredPatients = useMemo(() => {
-    if (activeStatus === "all") {
-      return patients;
-    }
+  const { data, isLoading } = usePatientsQuery({ page, limit });
 
-    return patients.filter((patient) => patient.status === activeStatus);
-  }, [activeStatus]);
-
-  const handleStatusChange = (status: PatientStatus | "all") => {
+  const handleStatusChange = useCallback((status: PatientStatus | "all") => {
+    setPage(1);
     setActiveStatus(status);
-  };
+  }, []);
+
+  const handleSearchChange = useCallback((value: string) => {
+    setPage(1);
+    setSearchValue(value);
+  }, []);
+
+  const filteredPatients = useMemo<PatientRow[]>(() => {
+    if (isLoading) return [];
+    const patients = data?.items ?? [];
+    const normalizedSearch = searchValue.trim().toLowerCase();
+
+    return patients
+      .filter((patient) => {
+        if (activeStatus !== "all" && patient.status !== activeStatus) {
+          return false;
+        }
+
+        if (!normalizedSearch) {
+          return true;
+        }
+
+        return (
+          patient.name.toLowerCase().includes(normalizedSearch) ||
+          String(patient.medicalId).toLowerCase().includes(normalizedSearch) ||
+          patient.status.toLowerCase().includes(normalizedSearch)
+        );
+      })
+      .map((patient) => ({
+        ...patient,
+        lastSession: formatLastSession(patient.lastSessionDate),
+      }));
+  }, [activeStatus, data?.items, searchValue, isLoading]);
 
   if (isLoading) {
     return <PatientsTableSkeleton />;
   }
-
+  console.log(data);
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <PatientsTableSearch />
+        <PatientsTableSearch
+          value={searchValue}
+          onChange={handleSearchChange}
+        />
         <PatientsStatusFilters
           handleStatusChange={handleStatusChange}
           activeStatus={activeStatus || "all"}
@@ -145,107 +190,17 @@ const PatientsTable = () => {
         columns={patientColumns}
         data={filteredPatients}
         pagination
-        paginationPerPage={5}
-        totalRows={filteredPatients.length}
-        //   paginationServer
-        onPageChange={(page) => console.log(page)}
-        onRowsPerPageChange={(rowsPerPage, page) =>
-          console.log({ rowsPerPage, page })
-        }
+        paginationServer
+        paginationPerPage={limit}
+        totalRows={data?.pagination?.total ?? 0}
+        onPageChange={(nextPage) => setPage(nextPage)}
+        onRowsPerPageChange={(rowsPerPage) => {
+          setLimit(rowsPerPage);
+          setPage(1);
+        }}
       />
     </div>
   );
 };
 
-export default PatientsTable;
-
-const patients: Patient[] = [
-  {
-    id: "1",
-    name: "Sarah Miller",
-    subtitle: "Neuropathy Grade II",
-    age: 68,
-    medicalId: "#NG-99231",
-    eegFiles: 12,
-    lastSession: "Today, 09:45 AM",
-    status: "stable",
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-  },
-  {
-    id: "2",
-    name: "David Chen",
-    subtitle: "Post-Seizure Recovery",
-    age: 45,
-    medicalId: "#NG-88421",
-    eegFiles: 8,
-    lastSession: "Yesterday, 04:20 PM",
-    status: "monitoring",
-    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-  },
-  {
-    id: "3",
-    name: "Elena Rodriguez",
-    subtitle: "Epileptic Diagnostic Study",
-    age: 32,
-    medicalId: "#NG-77562",
-    eegFiles: 4,
-    lastSession: "Oct 24, 11:00 AM",
-    status: "critical",
-    avatar: "https://randomuser.me/api/portraits/women/68.jpg",
-  },
-  {
-    id: "4",
-    name: "James Wilson",
-    subtitle: "Chronic Insomnia Assessment",
-    age: 59,
-    medicalId: "#NG-11203",
-    eegFiles: 21,
-    lastSession: "Oct 23, 02:15 PM",
-    status: "stable",
-    avatar: "https://randomuser.me/api/portraits/men/75.jpg",
-  },
-  {
-    id: "5",
-    name: "Linda Gray",
-    subtitle: "Sleep Apnea Monitoring",
-    age: 54,
-    medicalId: "#NG-55410",
-    eegFiles: 6,
-    lastSession: "Oct 22, 09:30 AM",
-    status: "stable",
-    avatar: "https://randomuser.me/api/portraits/women/12.jpg",
-  },
-  {
-    id: "6",
-    name: "Ahmed Hassan",
-    subtitle: "EEG Baseline Study",
-    age: 41,
-    medicalId: "#NG-66789",
-    eegFiles: 10,
-    lastSession: "Oct 21, 01:10 PM",
-    status: "monitoring",
-    avatar: "https://randomuser.me/api/portraits/men/11.jpg",
-  },
-  {
-    id: "7",
-    name: "Sophia Turner",
-    subtitle: "Seizure Pattern Analysis",
-    age: 29,
-    medicalId: "#NG-33991",
-    eegFiles: 3,
-    lastSession: "Oct 20, 10:05 AM",
-    status: "critical",
-    avatar: "https://randomuser.me/api/portraits/women/25.jpg",
-  },
-  {
-    id: "8",
-    name: "Michael Brown",
-    subtitle: "Sleep Disorder Evaluation",
-    age: 63,
-    medicalId: "#NG-77882",
-    eegFiles: 14,
-    lastSession: "Oct 19, 06:40 PM",
-    status: "stable",
-    avatar: "https://randomuser.me/api/portraits/men/54.jpg",
-  },
-];
+export default memo(PatientsTable);

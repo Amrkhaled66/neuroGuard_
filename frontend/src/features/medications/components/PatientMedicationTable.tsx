@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, memo } from "react";
 import type { TableColumn } from "react-data-table-component";
 import Table from "@/shared/ui/Table";
 import Button from "@/shared/ui/Button";
 import { usePatientMedications, useDeletePatientMedication } from "../hooks";
 import { Alert } from "@/shared/utils/alert";
 import type { PatientMedication } from "../services";
-
+import TableSkeleton from "@/shared/ui/skeletons/TableSkeleton";
 type PatientMedicationTableProps = {
   patientId: number;
   onEditClick?: (medication: PatientMedication) => void;
@@ -13,7 +13,7 @@ type PatientMedicationTableProps = {
 
 type MedicationRow = PatientMedication & { actions: React.ReactNode };
 
-export default function PatientMedicationTable({
+function PatientMedicationTable({
   patientId,
   onEditClick,
 }: PatientMedicationTableProps) {
@@ -25,7 +25,7 @@ export default function PatientMedicationTable({
   const deleteMutation = useDeletePatientMedication();
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  const medications = medicationsData?.data || [];
+  const medications = medicationsData ?? [];
 
   const handleDelete = (medId: number) => {
     Alert({
@@ -66,19 +66,19 @@ export default function PatientMedicationTable({
 
   const columns: TableColumn<MedicationRow>[] = [
     {
-      name: "Medication",
-      cell: (row) => `Medication #${row.medicationId}`,
-      width: "150px",
+      name: "Medication Id",
+      cell: (row) => `${row.medicationId}`,
+      // width: "150px",
     },
     {
       name: "Dosage",
       cell: (row) => row.dosage || "-",
-      width: "120px",
+      // width: "120px",
     },
     {
       name: "Frequency",
       cell: (row) => row.frequency || "-",
-      width: "130px",
+      // width: "130px",
     },
     {
       name: "Status",
@@ -93,12 +93,12 @@ export default function PatientMedicationTable({
           {row.status}
         </span>
       ),
-      width: "120px",
+      // width: "120px",
     },
     {
       name: "Start Date",
       cell: (row) => new Date(row.startDate).toLocaleDateString(),
-      width: "130px",
+      // width: "130px",
     },
     {
       name: "Actions",
@@ -127,8 +127,16 @@ export default function PatientMedicationTable({
     },
   ];
 
+  const tableData =
+    medications.length > 0
+      ? medications.map((med) => ({
+          ...med,
+          actions: null,
+        }))
+      : [];
+
   if (isLoading) {
-    return <div className="py-4 text-center">Loading medications...</div>;
+    return <TableSkeleton />;
   }
 
   if (error) {
@@ -139,14 +147,6 @@ export default function PatientMedicationTable({
     );
   }
 
-
-  const tableData =
-    medications.length > 0
-      ? medications.map((med) => ({
-          ...med,
-          actions: null,
-        }))
-      : [];
   return (
     <Table
       noDataText="No medications assigned to this patient yet."
@@ -155,3 +155,5 @@ export default function PatientMedicationTable({
     />
   );
 }
+
+export default memo(PatientMedicationTable);

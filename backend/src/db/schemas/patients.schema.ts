@@ -3,6 +3,7 @@ import baseColumns from '../baseColumns';
 import { doctors } from './doctors.schema';
 import { genderEnum } from './enums';
 import { patientStatusEnum } from './enums';
+
 export const patients = table('patients', {
   ...baseColumns,
     email: text().notNull().unique(),

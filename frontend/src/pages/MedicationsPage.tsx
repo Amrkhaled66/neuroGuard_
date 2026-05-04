@@ -41,7 +41,7 @@ export default function MedicationsPage() {
         isOpen={isModalOpen}
         onClose={handleModalClose}
         patientId={numPatientId}
-        editingMedicationId={editingMedication?.id}
+        editingMedication={editingMedication}
       />
     </div>
   );

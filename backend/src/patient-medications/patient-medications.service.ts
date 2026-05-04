@@ -68,15 +68,27 @@ export class PatientMedicationsService {
     patientMedicationId: number,
     updatePatientMedicationDto: UpdatePatientMedicationDto,
   ) {
-    const { dosage, frequency, instruction, endDate, status } =
+    const {
+      medicationId,
+      dosage,
+      frequency,
+      instruction,
+      startDate,
+      endDate,
+      status,
+    } =
       updatePatientMedicationDto;
 
     const [patientMedication] = await this.db
       .update(schema.patientMedications)
       .set({
+        medicationId,
         dosage,
         frequency,
         instruction,
+        startDate: startDate
+          ? new Date(startDate).toISOString().split('T')[0]
+          : undefined,
         endDate: endDate ? new Date(endDate).toISOString().split('T')[0] : undefined,
         status,
       })
