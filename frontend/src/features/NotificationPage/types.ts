@@ -1,18 +1,27 @@
-export type NotificationStatus = "read" | "sent" | "unread";
-
-export type NotificationItem = {
-  id: string;
+export interface NotificationItem {
+  id: number;
+  userId: number;
   title: string;
-  data: string;
   message: string;
-  status: NotificationStatus;
+  isRead: boolean;
+  createdAt: string;
+  readAt: string | null;
+}
 
-  source: string;
-};
+export interface NotificationPagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
 
-export type HealthMetric = {
-  id: string;
-  label: string;
-  value: string;
-  progress: number;
-};
+export interface NotificationStats {
+  avgResponseTimeInSeconds: number | null;
+  patientResponseRate: number;
+}
+
+export interface PatientNotificationsResponse {
+  items: NotificationItem[];
+  pagination: NotificationPagination;
+  stats: NotificationStats;
+}

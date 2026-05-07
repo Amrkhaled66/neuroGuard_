@@ -6,6 +6,7 @@ import { patientMedications } from './patient-medications.schema';
 import { medicationLogs } from './medication-logs.schema';
 import { sessions } from './sessions.schema';
 import { seizureEvents } from './seizure-events.schema';
+import { notifications } from './notifications.schema';
 
 export const doctorsRelations = relations(doctors, ({ many }) => ({
   patients: many(patients),
@@ -19,6 +20,7 @@ export const patientsRelations = relations(patients, ({ one, many }) => ({
   }),
   patientMedications: many(patientMedications),
   sessions: many(sessions),
+  notifications: many(notifications),
 }));
 
 export const medicationsRelations = relations(medications, ({ one, many }) => ({
@@ -60,5 +62,12 @@ export const seizureEventsRelations = relations(seizureEvents, ({ one }) => ({
   session: one(sessions, {
     fields: [seizureEvents.sessionId],
     references: [sessions.id],
+  }),
+}));
+
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  patient: one(patients, {
+    fields: [notifications.userId],
+    references: [patients.id],
   }),
 }));

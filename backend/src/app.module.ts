@@ -10,6 +10,7 @@ import { PatientMedicationsModule } from './patient-medications/patient-medicati
 import { MedicationLogsModule } from './medication-logs/medication-logs.module';
 import { SessionsModule } from './sessions/sessions.module';
 import { SeizureEventsModule } from './seizure-events/seizure-events.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { SeizureEventsModule } from './seizure-events/seizure-events.module';
     MedicationLogsModule,
     SessionsModule,
     SeizureEventsModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
