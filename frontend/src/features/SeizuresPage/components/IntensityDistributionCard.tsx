@@ -74,7 +74,7 @@ export default function IntensityDistributionCard({
   return (
     <div className="app-surface rounded-3xl p-6">
       <h3 className="app-text-primary text-3xl font-bold">
-        Intensity Distribution
+        Duration Distribution
       </h3>
 
       <div className="mt-8 flex justify-center">

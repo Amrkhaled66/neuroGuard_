@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { SeizureEventsService } from './seizure-events.service';
 import { CreateSeizureEventDto } from './dto/create-seizure-event.dto';
@@ -26,20 +27,20 @@ export class SeizureEventsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.seizureEventsService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.seizureEventsService.findOne(id);
   }
 
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateSeizureEventDto: UpdateSeizureEventDto,
   ) {
-    return this.seizureEventsService.update(+id, updateSeizureEventDto);
+    return this.seizureEventsService.update(id, updateSeizureEventDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.seizureEventsService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.seizureEventsService.remove(id);
   }
 }

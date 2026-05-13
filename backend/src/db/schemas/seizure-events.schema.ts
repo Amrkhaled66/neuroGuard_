@@ -8,8 +8,8 @@ export const seizureEvents = table('seizure_events', {
     .references(() => sessions.id, { onDelete: 'cascade' }),
   onsetSide: varchar('onset_side'),
   onsetRegion: varchar('onset_region'),
-  startTime: timestamp('start_time').notNull(),
-  endTime: timestamp('end_time').notNull(),
+  startTimeSeconds: integer('start_time_seconds').notNull(),
+  endTimeSeconds: integer('end_time_seconds').notNull(),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });

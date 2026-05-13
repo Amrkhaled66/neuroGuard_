@@ -1,7 +1,6 @@
 import {
   IsNotEmpty,
   IsString,
-  IsDateString,
   IsOptional,
   IsNumber,
 } from 'class-validator';
@@ -19,11 +18,11 @@ export class CreateSeizureEventDto {
   @IsOptional()
   onsetRegion?: string;
 
-  @IsDateString()
+  @IsNumber()
   @IsNotEmpty()
-  startTime!: string;
+  startTimeSeconds!: number;
 
-  @IsDateString()
+  @IsNumber()
   @IsNotEmpty()
-  endTime!: string;
+  endTimeSeconds!: number;
 }

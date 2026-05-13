@@ -15,14 +15,14 @@ export default function SummaryCard({
 
   return (
     <div className="app-surface h-fit rounded-3xl p-4">
-      <p className="text-[11px] text-nowrap font-semibold tracking-[0.18em] text-(--text-tertiary) uppercase">
+      <p className="text-[11px] text-nowrap font-semibold  text-brand-primary uppercase">
         {title}
       </p>
       <div className="mt-3">
         <h3 className="app-text-primary text-4xl leading-none font-bold">
           {value}
         </h3>
-        <p className="mt-2 text-sm text-fontColor">{subtitle}</p>
+        <p className="mt-2 text-xs text-fontColor">{subtitle}</p>
       </div>
     </div>
   );

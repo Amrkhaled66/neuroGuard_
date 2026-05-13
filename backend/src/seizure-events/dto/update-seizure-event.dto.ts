@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsDateString } from 'class-validator';
+import { IsOptional, IsString, IsNumber } from 'class-validator';
 
 export class UpdateSeizureEventDto {
   @IsString()
@@ -9,11 +9,11 @@ export class UpdateSeizureEventDto {
   @IsOptional()
   onsetRegion?: string;
 
-  @IsDateString()
+  @IsNumber()
   @IsOptional()
-  startTime?: string;
+  startTimeSeconds?: number;
 
-  @IsDateString()
+  @IsNumber()
   @IsOptional()
-  endTime?: string;
+  endTimeSeconds?: number;
 }

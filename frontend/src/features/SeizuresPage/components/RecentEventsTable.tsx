@@ -1,78 +1,80 @@
 import type { TableColumn } from "react-data-table-component";
 import Table from "@/shared/ui/Table";
-import { events } from "../data";
 import { RecentEventsTableSkeleton } from "../skeletons";
-import type { EventRow, EventTone } from "../types";
+import type {
+  SeizureAnalyticsPagination,
+  SeizureEventRow,
+} from "../types";
+import {
+  formatDateTime,
+  formatDurationFromSeconds,
+  formatOffsetSeconds,
+} from "../types";
 
-function toneClasses(tone: EventTone) {
-  if (tone === "high") {
-    return "bg-[var(--status-danger-soft)] text-[var(--status-danger)]";
-  }
-  if (tone === "medium") {
-    return "bg-[var(--status-warning-soft)] text-[var(--status-warning)]";
-  }
-  return "bg-[var(--status-success-soft)] text-[var(--status-success)]";
-}
-
-const recentEventColumns: TableColumn<EventRow>[] = [
+const recentEventColumns: TableColumn<SeizureEventRow>[] = [
   {
-    name: "Date/Time",
+    name: "Session Date",
     sortable: true,
-    selector: (row) => row.dateTime,
+    selector: (row) => row.sessionDate ?? "",
     minWidth: "180px",
     cell: (row) => (
       <span className="app-text-primary text-[15px] font-medium">
-        {row.dateTime}
+        {formatDateTime(row.sessionDate)}
       </span>
     ),
   },
   {
-    name: "Type",
-    minWidth: "160px",
+    name: "File",
+    minWidth: "180px",
     cell: (row) => (
-      <span
-        className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${toneClasses(
-          row.tone,
-        )}`}
-      >
-        {row.type}
+      <span className="app-text-secondary text-[15px]">{row.fileName}</span>
+    ),
+  },
+  {
+    name: "Start Offset",
+    sortable: true,
+    selector: (row) => row.startTimeSeconds,
+    minWidth: "120px",
+    cell: (row) => (
+      <span className="app-text-secondary text-[15px]">
+        {formatOffsetSeconds(row.startTimeSeconds)}
+      </span>
+    ),
+  },
+  {
+    name: "End Offset",
+    selector: (row) => row.endTimeSeconds,
+    minWidth: "120px",
+    cell: (row) => (
+      <span className="app-text-secondary text-[15px]">
+        {formatOffsetSeconds(row.endTimeSeconds)}
       </span>
     ),
   },
   {
     name: "Duration",
     sortable: true,
-    selector: (row) => row.duration,
+    selector: (row) => row.durationSeconds,
     minWidth: "120px",
     cell: (row) => (
-      <span className="app-text-secondary text-[15px]">{row.duration}</span>
-    ),
-  },
-  {
-    name: "Triggers",
-    selector: (row) => row.trigger,
-    minWidth: "180px",
-    cell: (row) => (
-      <span className="app-text-secondary text-[15px]">{row.trigger}</span>
-    ),
-  },
-  {
-    name: "Postictal State",
-    selector: (row) => row.postictalState,
-    minWidth: "180px",
-    cell: (row) => (
       <span className="app-text-secondary text-[15px]">
-        {row.postictalState}
+        {formatDurationFromSeconds(row.durationSeconds)}
       </span>
     ),
   },
 ];
 
 type RecentEventsTableProps = {
+  data: SeizureEventRow[];
+  pagination: SeizureAnalyticsPagination | null;
+  onPageChange: (page: number) => void;
   isLoading?: boolean;
 };
 
 export default function RecentEventsTable({
+  data,
+  pagination,
+  onPageChange,
   isLoading = false,
 }: RecentEventsTableProps) {
   if (isLoading) return <RecentEventsTableSkeleton />;
@@ -87,14 +89,13 @@ export default function RecentEventsTable({
         <Table
           className="rounded-2xl sm:rounded-[28px]"
           columns={recentEventColumns}
-          data={events}
+          data={data}
           pagination
-          paginationPerPage={5}
-          totalRows={events.length}
-          onPageChange={(page) => console.log(page)}
-          onRowsPerPageChange={(rowsPerPage, page) =>
-            console.log({ rowsPerPage, page })
-          }
+          paginationServer
+          paginationPerPage={pagination?.limit ?? 10}
+          totalRows={pagination?.total ?? 0}
+          onPageChange={onPageChange}
+          noDataText="No recent seizure events found"
         />
       </div>
     </div>

@@ -60,7 +60,7 @@ export default function AddEegSessionModal({
           onClose();
           Alert({
             title: "Session Uploaded",
-            text: "The EEG session was uploaded successfully.",
+            text: "The EEG session was uploaded successfully and is now being analyzed.",
             icon: "success",
             confirmButtonText: "OK",
           });

@@ -161,18 +161,16 @@ export default function Table<T>({
   const { isDark } = useTheme();
   const customStyles = useMemo(() => getCustomStyles(isDark), [isDark]);
 
+  const DataTableComponent = (DataTable as any).default || DataTable;
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, ease: "easeOut" }}
-      className={[
-        "!rounded-3xl",
-        className,
-      ].join(" ")}
+      className={["!rounded-3xl", className].join(" ")}
     >
       <div className="overflow-x-auto">
-        <DataTable.default<T>
+        <DataTableComponent<T>
           columns={columns}
           data={data}
           responsive
@@ -189,7 +187,7 @@ export default function Table<T>({
           noDataComponent={
             !loading ? (
               <div className="py-14 text-center">
-                <p className="text-sm font-medium app-text-primary">
+                <p className="app-text-primary text-sm font-medium">
                   {noDataText}
                 </p>
                 <p className="app-text-secondary mt-1 text-sm">

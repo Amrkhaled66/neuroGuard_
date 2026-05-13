@@ -14,6 +14,11 @@ export function usePatientSessions(patientId: number) {
     queryKey: sessionQueryKeys.list(patientId),
     queryFn: () => getPatientSessions(patientId),
     enabled: !!patientId,
+    refetchInterval: (query) =>
+      query.state.data?.some((session) => session.status === "processing")
+        ? 3000
+        : false,
+    refetchIntervalInBackground: true,
   });
 }
 

@@ -36,6 +36,20 @@
       "when": 1778118420526,
       "tag": "0004_busy_storm",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1778694946878,
+      "tag": "0005_session_analysis_offsets",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1778696405532,
+      "tag": "0006_green_shockwave",
+      "breakpoints": true
     }
   ]
 }

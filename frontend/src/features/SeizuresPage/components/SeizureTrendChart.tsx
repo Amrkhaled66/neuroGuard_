@@ -1,13 +1,40 @@
 import { SeizureTrendChartSkeleton } from "../skeletons";
+import {
+  formatTrendLabel,
+  type SeizureTrendPoint,
+} from "../types";
 
 type SeizureTrendChartProps = {
+  data: SeizureTrendPoint[];
   isLoading?: boolean;
 };
 
 export default function SeizureTrendChart({
+  data,
   isLoading = false,
 }: SeizureTrendChartProps) {
   if (isLoading) return <SeizureTrendChartSkeleton />;
+
+  const chartWidth = 800;
+  const chartHeight = 240;
+  const maxValue = Math.max(...data.map((item) => item.seizureCount), 1);
+  const xStep = data.length > 1 ? chartWidth / (data.length - 1) : chartWidth;
+  const yScale = chartHeight - 30;
+
+  const path = data
+    .map((point, index) => {
+      const x = index * xStep;
+      const y =
+        chartHeight - (point.seizureCount / maxValue) * yScale - 10;
+
+      return `${index === 0 ? "M" : "L"}${x},${y}`;
+    })
+    .join(" ");
+
+  const trendLabels =
+    data.length <= 4
+      ? data
+      : [data[0], data[Math.floor(data.length / 3)], data[Math.floor((data.length * 2) / 3)], data[data.length - 1]];
 
   return (
     <div className="app-surface rounded-3xl p-6">
@@ -24,20 +51,21 @@ export default function SeizureTrendChart({
 
       <div className="mt-8 h-[260px] rounded-2xl bg-[var(--surface-muted)]/40 p-4">
         <svg viewBox="0 0 800 240" className="h-full w-full">
-          <path
-            d="M0,210 C60,190 100,205 140,180 C180,155 220,160 260,210 C300,255 340,70 380,150 C420,230 460,240 500,65 C540,-5 580,210 620,215 C660,220 710,240 800,170"
-            fill="none"
-            stroke="var(--brand-primary)"
-            strokeWidth="4"
-            strokeLinecap="round"
-          />
+          {data.length > 0 ? (
+            <path
+              d={path}
+              fill="none"
+              stroke="var(--brand-primary)"
+              strokeWidth="4"
+              strokeLinecap="round"
+            />
+          ) : null}
         </svg>
 
         <div className="mt-3 flex justify-between text-[11px] font-semibold tracking-[0.14em] text-[var(--text-tertiary)] uppercase">
-          <span>Oct 2023</span>
-          <span>Nov 2023</span>
-          <span>Dec 2023</span>
-          <span>Jan 2024</span>
+          {trendLabels.map((label) => (
+            <span key={label.date}>{formatTrendLabel(label.date)}</span>
+          ))}
         </div>
       </div>
     </div>
