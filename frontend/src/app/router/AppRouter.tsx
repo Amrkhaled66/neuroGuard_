@@ -9,6 +9,11 @@ import {
   DoctorDashboardLayout,
   PatientLayout,
 } from "@/layouts/index";
+import PatientPortalLayout from "@/features/patient-portal/layout/PatientPortalLayout";
+import PatientPortalProfilePage from "@/features/patient-portal/pages/PatientPortalProfilePage";
+import PatientPortalSessionsPage from "@/features/patient-portal/pages/PatientPortalSessionsPage";
+import PatientPortalSeizuresPage from "@/features/patient-portal/pages/PatientPortalSeizuresPage";
+import PatientPortalMedicationsPage from "@/features/patient-portal/pages/PatientPortalMedicationsPage";
 
 export function AppRouter() {
   return (
@@ -24,6 +29,10 @@ export function AppRouter() {
         <Route
           path={topLevelRouteMap.signin.path}
           element={<topLevelRouteMap.signin.Component />}
+        />
+        <Route
+          path={topLevelRouteMap.patientLogin.path}
+          element={<topLevelRouteMap.patientLogin.Component />}
         />
         <Route
           path={topLevelRouteMap.signup.path}
@@ -53,7 +62,6 @@ export function AppRouter() {
             />
           </Route>
           <Route element={<PatientLayout />} path={routePaths.patientDetails}>
-            {/* default redirect */}
             <Route
               index
               element={
@@ -86,6 +94,35 @@ export function AppRouter() {
               element={<patientSectionRouteMap.medications.Component />}
             />
           </Route>
+        </Route>
+      </Route>
+
+      <Route
+        element={
+          <RequirePermission permission={PERMISSIONS.ACCESS_PATIENT_ROUTES} />
+        }
+      >
+        <Route element={<PatientPortalLayout />}>
+          <Route
+            path={routePaths.patientRoot}
+            element={<Navigate to={routePaths.patientProfile} replace />}
+          />
+          <Route
+            path={routePaths.patientProfile}
+            element={<PatientPortalProfilePage />}
+          />
+          <Route
+            path={routePaths.patientEegSessions}
+            element={<PatientPortalSessionsPage />}
+          />
+          <Route
+            path={routePaths.patientSeizures}
+            element={<PatientPortalSeizuresPage />}
+          />
+          <Route
+            path={routePaths.patientMedications}
+            element={<PatientPortalMedicationsPage />}
+          />
         </Route>
       </Route>
 

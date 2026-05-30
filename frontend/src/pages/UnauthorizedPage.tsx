@@ -11,8 +11,14 @@ export default function UnauthorizedPage() {
     authData.user,
     PERMISSIONS.ACCESS_DOCTOR_ROUTES,
   );
+  const canOpenPatientRoutes = hasPermission(
+    authData.user,
+    PERMISSIONS.ACCESS_PATIENT_ROUTES,
+  );
   const primaryHref = canOpenDoctorRoutes
     ? routePaths.doctorDashboard
+    : canOpenPatientRoutes
+      ? routePaths.patientProfile
     : routePaths.signin;
 
   const handleSignOut = () => {
@@ -31,7 +37,7 @@ export default function UnauthorizedPage() {
             You do not have permission to view this page.
           </h1>
           <p className="app-text-secondary">
-            This area is restricted to doctor accounts.
+            This area is restricted to accounts with the right access.
           </p>
         </div>
 
@@ -40,7 +46,11 @@ export default function UnauthorizedPage() {
             className="w-full sm:w-auto"
             onClick={() => navigate(primaryHref)}
           >
-            {canOpenDoctorRoutes ? "Go to dashboard" : "Go to sign in"}
+            {canOpenDoctorRoutes
+              ? "Go to dashboard"
+              : canOpenPatientRoutes
+                ? "Go to profile"
+                : "Go to sign in"}
           </Button>
           {isAuthenticated ? (
             <Button

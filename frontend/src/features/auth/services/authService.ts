@@ -22,8 +22,17 @@ type DoctorLoginResponse = {
   user?: BackendDoctor;
 };
 
+type PatientLoginResponse = {
+  token: string;
+};
+
 export type DoctorLoginPayload = {
   email: string;
+  password: string;
+};
+
+export type PatientLoginPayload = {
+  medicalId: string;
   password: string;
 };
 
@@ -191,6 +200,31 @@ export async function loginDoctor(payload: DoctorLoginPayload) {
   });
 
   return normalizeDoctorSession(response);
+}
+
+function normalizePatientSession(response: PatientLoginResponse): AuthSession {
+  const tokenUser = decodeUserFromToken(response.token);
+
+  return {
+    token: response.token,
+    user: {
+      id: tokenUser.id,
+      firstName: tokenUser.firstName,
+      lastName: tokenUser.lastName,
+      email: tokenUser.email,
+      medicalId: tokenUser.medicalId,
+      role: tokenUser.role ?? USER_ROLES.PATIENT,
+    },
+  };
+}
+
+export async function loginPatient(payload: PatientLoginPayload) {
+  const response = await request<PatientLoginResponse>("/auth/login/patients", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+  return normalizePatientSession(response);
 }
 
 export async function signupDoctor(payload: DoctorSignupPayload) {

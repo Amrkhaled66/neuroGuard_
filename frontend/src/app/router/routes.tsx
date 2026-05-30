@@ -10,6 +10,8 @@ import {
   SignupPage,
   UnauthorizedPage,
   MedicationsPage,
+  PatientSigninPage,
+  PatientProfileStartPage,
 } from "@/pages";
 import { routePaths } from "./paths";
 
@@ -58,6 +60,11 @@ export const topLevelRouteMap = {
     path: routePaths.signin,
     Component: SigninPage,
   },
+  patientLogin: {
+    name: "patient-login",
+    path: routePaths.patientLogin,
+    Component: PatientSigninPage,
+  },
   signup: {
     name: "signup",
     path: routePaths.signup,
@@ -77,5 +84,10 @@ export const topLevelRouteMap = {
     name: "patients",
     path: routePaths.patients,
     Component: PatientsPage,
+  },
+  patientProfile: {
+    name: "patient-profile",
+    path: routePaths.patientProfile,
+    Component: PatientProfileStartPage,
   },
 } as const;

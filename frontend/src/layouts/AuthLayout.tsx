@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { motion, type Variants } from "framer-motion";
 import logo from "@/assets/logo2.svg";
+import AuthPng from "@/../public/Auth.png"
 interface AuthLayoutProps {
   children: React.ReactNode;
 }
@@ -37,7 +38,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
         >
           <div
             style={{
-              backgroundImage: 'url("./Auth.png")',
+              backgroundImage: `url("${AuthPng}")`,
               backgroundSize: "cover",
               backgroundPosition: "center",
             }}

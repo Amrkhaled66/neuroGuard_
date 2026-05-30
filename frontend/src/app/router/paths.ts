@@ -1,9 +1,15 @@
 export const routePaths = {
   root: "/",
   signin: "/signin",
+  patientLogin: "/patient/login",
   signup: "/signup",
   unauthorized: "/unauthorized",
   doctorDashboard: "/DoctorDashboardPage",
   patients: "/patients",
   patientDetails: "/patients/:patientId",
+  patientRoot: "/patient",
+  patientProfile: "/patient/profile",
+  patientEegSessions: "/patient/eeg-sessions",
+  patientSeizures: "/patient/seizures",
+  patientMedications: "/patient/medications",
 } as const;

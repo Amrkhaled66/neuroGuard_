@@ -10,12 +10,11 @@ export default function PublicOnlyRoute() {
     return <Outlet />;
   }
 
-  const redirectPath = hasPermission(
-    authData.user,
-    PERMISSIONS.ACCESS_DOCTOR_ROUTES,
-  )
+  const redirectPath = hasPermission(authData.user, PERMISSIONS.ACCESS_DOCTOR_ROUTES)
     ? routePaths.doctorDashboard
-    : routePaths.unauthorized;
+    : hasPermission(authData.user, PERMISSIONS.ACCESS_PATIENT_ROUTES)
+      ? routePaths.patientProfile
+      : routePaths.unauthorized;
 
   return <Navigate to={redirectPath} replace />;
 }

@@ -5,10 +5,11 @@ import { getToken } from "@/shared/utils/authStorage";
 import { routePaths } from "@/app/router/paths";
 import { useAuth } from "@/features/auth/context/useAuth";
 import { Alert } from "@/shared/utils/alert";
+import { PERMISSIONS, hasPermission } from "@/features/auth/permissions";
 
 export function useAxiosInterceptor() {
   const navigate = useNavigate();
-  const { logout, isAuthenticated } = useAuth();
+  const { logout, isAuthenticated, authData } = useAuth();
 
   useEffect(() => {
     const requestInterceptor = axiosPrivate.interceptors.request.use(
@@ -28,8 +29,14 @@ export function useAxiosInterceptor() {
       (response) => response,
       (error) => {
         if (error?.response?.status === 401 && isAuthenticated) {
+          const isPatient = hasPermission(
+            authData.user,
+            PERMISSIONS.ACCESS_PATIENT_ROUTES,
+          );
           logout();
-          navigate(routePaths.signin, { replace: true });
+          navigate(isPatient ? routePaths.patientLogin : routePaths.signin, {
+            replace: true,
+          });
 
           Alert({
             title: "Session Expired",
@@ -47,5 +54,5 @@ export function useAxiosInterceptor() {
       axiosPrivate.interceptors.request.eject(requestInterceptor);
       axiosPrivate.interceptors.response.eject(responseInterceptor);
     };
-  }, [logout, navigate, isAuthenticated]);
+  }, [logout, navigate, isAuthenticated, authData.user]);
 }

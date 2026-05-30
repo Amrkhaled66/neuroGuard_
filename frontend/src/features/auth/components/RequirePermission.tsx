@@ -2,7 +2,11 @@ import type { ReactNode } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { routePaths } from "@/app/router/paths";
 import { useAuth } from "@/features/auth/context/useAuth";
-import { hasPermission, type Permission } from "@/features/auth/permissions";
+import {
+  hasPermission,
+  PERMISSIONS,
+  type Permission,
+} from "@/features/auth/permissions";
 
 type RequirePermissionProps = {
   permission: Permission;
@@ -17,8 +21,13 @@ export default function RequirePermission({
   const location = useLocation();
 
   if (!isAuthenticated) {
+    const loginPath =
+      permission === PERMISSIONS.ACCESS_PATIENT_ROUTES
+        ? routePaths.patientLogin
+        : routePaths.signin;
+
     return (
-      <Navigate to={routePaths.signin} replace state={{ from: location }} />
+      <Navigate to={loginPath} replace state={{ from: location }} />
     );
   }
 
