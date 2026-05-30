@@ -1,28 +1,38 @@
 import { motion } from "framer-motion";
+import SeizureLineChart from "@/shared/ui/SeizureLineChart";
 import SeizureActivityChartSkeleton from "../skeletons/SeizureActivityChartSkeleton";
-const SeizureActivityChart = () => {
-  const days = 7;
-  const isLoading = false;
+import type { DoctorDashboardTrendPoint } from "../types";
 
-  if (isLoading) {
-    return <SeizureActivityChartSkeleton />;
-  }
+type SeizureActivityChartProps = {
+  days: number;
+  data: DoctorDashboardTrendPoint[];
+  isLoading?: boolean;
+};
+
+const SeizureActivityChart = ({
+  days,
+  data,
+  isLoading = false,
+}: SeizureActivityChartProps) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className="app-surface app-text-primary space-y-5 rounded-xl p-5 sm:p-6 lg:col-span-2 lg:space-y-6 lg:p-8"
+      className="lg:col-span-2"
     >
-      <div className="space-y-1">
-        <p className="font-bold font-headline text-xl sm:text-2xl">
-          Seizure Activity
-        </p>
-        <p className="app-text-secondary text-sm">
-          Temporal distribution (Last {days} Days)
-        </p>
-      </div>
-      <div className="min-h-64 border-t border-t-stroke sm:min-h-72 lg:min-h-80"></div>
+      <SeizureLineChart
+        data={data}
+        title="Seizure Activity"
+        subtitle={`Temporal distribution (Last ${days} Days)`}
+        isLoading={isLoading}
+        skeleton={<SeizureActivityChartSkeleton />}
+        className="app-surface app-text-primary space-y-5 rounded-xl p-5 sm:p-6 lg:space-y-6 lg:p-8"
+        titleClassName="font-headline text-xl font-bold sm:text-2xl"
+        subtitleClassName="app-text-secondary text-sm"
+        chartSectionClassName="min-h-64 rounded-2xl border-t border-t-stroke pt-4 sm:min-h-72 lg:min-h-80"
+        plotContainerClassName="h-64 rounded-2xl bg-[var(--surface-muted)]/40 p-4 sm:h-72 lg:h-80"
+      />
     </motion.div>
   );
 };

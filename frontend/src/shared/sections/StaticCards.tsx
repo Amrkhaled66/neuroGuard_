@@ -5,6 +5,7 @@ import { MdOutlineGroups2 } from "react-icons/md";
 import { SiGoogleanalytics } from "react-icons/si";
 import { LuBrain } from "react-icons/lu";
 import { GoAlertFill } from "react-icons/go";
+import { useDoctorDashboard } from "@/features/dashboard";
 
 import StaticCardSkeleton from "../ui/skeletons/StaticCardSkeleton";
 const containerVariants = {
@@ -35,7 +36,41 @@ const itemVariants = {
 };
 
 export function StaticCards() {
-  const isLoading = false;
+  const dashboardQuery = useDoctorDashboard({ days: 7 });
+  const summary = dashboardQuery.data?.summary;
+  const isLoading = dashboardQuery.isLoading;
+
+  const items: StaticCardItem[] = [
+    {
+      id: "1",
+      title: "Total Patients",
+      state: summary?.totalPatients ?? 0,
+      icon: <MdOutlineGroups2 />,
+      isDanger: false,
+    },
+    {
+      id: "2",
+      title: "Active Sessions",
+      state: summary?.activeSessions ?? 0,
+      icon: <SiGoogleanalytics />,
+      isDanger: false,
+    },
+    {
+      id: "3",
+      title: "EEG FILES",
+      state: summary?.eegFiles ?? 0,
+      icon: <LuBrain />,
+      isDanger: true,
+    },
+    {
+      id: "4",
+      title: "Critical Alerts",
+      state: summary?.criticalAlerts ?? 0,
+      icon: <GoAlertFill />,
+      isDanger: true,
+    },
+  ];
+
   return (
     <motion.section
       className="mt-8 grid grid-cols-1  gap-4 md:grid-cols-2 lg:grid-cols-4"
@@ -47,7 +82,7 @@ export function StaticCards() {
         ? Array.from({ length: 4 }).map((_, index) => (
             <StaticCardSkeleton key={index} />
           ))
-        : fakeItems.map((item) => (
+        : items.map((item) => (
             <motion.div key={item.id} variants={itemVariants as Variants}>
               <StaticCard
                 label={item.title}
@@ -70,34 +105,3 @@ type StaticCardItem = {
   icon: ReactNode;
   isDanger?: boolean;
 };
-
-const fakeItems: StaticCardItem[] = [
-  {
-    id: "1",
-    title: "Total Patients",
-    state: 120,
-    icon: <MdOutlineGroups2 />,
-    isDanger: false,
-  },
-  {
-    id: "2",
-    title: "Active Sessions",
-    state: 120,
-    icon: <SiGoogleanalytics />,
-    isDanger: false,
-  },
-  {
-    id: "3",
-    title: "EEG FILES",
-    state: 120,
-    icon: <LuBrain />,
-    isDanger: true,
-  },
-  {
-    id: "4",
-    title: "Critical Alerts",
-    state: 120,
-    icon: <GoAlertFill />,
-    isDanger: true,
-  },
-];

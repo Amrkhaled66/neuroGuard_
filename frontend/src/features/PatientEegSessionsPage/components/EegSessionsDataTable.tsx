@@ -90,9 +90,9 @@ export default function EegSessionsDataTable({
 
         return (
           <div
-            className={`inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold ${status.bgClass} ${status.textClass}`}
+            className={`inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold ${status?.bgClass} ${status?.textClass}`}
           >
-            {status.label}
+            {status?.label}
           </div>
         );
       },

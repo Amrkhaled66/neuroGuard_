@@ -1,7 +1,18 @@
 import { motion } from "framer-motion";
 import RealTimeInsightsSkeleton from "../skeletons/RealTimeInsightsSkeleton";
-const RealTimeInsights = () => {
-  const isLoading = false;
+import { formatDashboardDateTime } from "../types";
+
+type RealTimeInsightsProps = {
+  dailyFrequency: number;
+  lastDetectionTime: string | null;
+  isLoading?: boolean;
+};
+
+const RealTimeInsights = ({
+  dailyFrequency,
+  lastDetectionTime,
+  isLoading = false,
+}: RealTimeInsightsProps) => {
 
   if (isLoading) {
     return <RealTimeInsightsSkeleton />;
@@ -31,7 +42,7 @@ const RealTimeInsights = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            08
+            {String(dailyFrequency).padStart(2, "0")}
           </motion.p>
         </div>
       </motion.div>
@@ -51,7 +62,7 @@ const RealTimeInsights = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            14:00 PM
+            {formatDashboardDateTime(lastDetectionTime)}
           </motion.p>
         </div>
       </motion.div>

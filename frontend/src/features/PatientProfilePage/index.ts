@@ -1,4 +1,3 @@
-export { demoData } from "./data";
 export { default as AlertsCard } from "./components/AlertsCard";
 export { default as ClinicalOverviewCard } from "./components/ClinicalOverviewCard";
 export { default as KeyStatsCard } from "./components/KeyStatsCard";
@@ -17,7 +16,6 @@ export type {
   AlertItem,
   ClinicalItem,
   MedicationItem,
-  ProfileOverviewData,
   StatItem,
   TrendPoint,
 } from "./types";

@@ -44,9 +44,19 @@ export class PatientsController {
     return this.patientsService.findAll(doctorId, page, limit);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([RoleEnum.DOCTOR])
+  @Get(':id/profile')
+  findProfile(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser('id') doctorId: number,
+  ) {
+    return this.patientsService.findProfile(id, doctorId);
+  }
+
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.patientsService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.patientsService.findOne(id);
   }
 
   @Patch(':id')

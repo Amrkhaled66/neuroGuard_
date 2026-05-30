@@ -3,6 +3,7 @@ import {
   createPatient,
   type CreatePatientPayload,
 } from "@/features/patients/services";
+import { doctorDashboardQueryKeys } from "@/features/dashboard";
 
 export const patientQueryKeys = {
   all: ["patients"] as const,
@@ -17,6 +18,9 @@ export function useCreatePatient() {
     mutationFn: (payload: CreatePatientPayload) => createPatient(payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: patientQueryKeys.all });
+      void queryClient.invalidateQueries({
+        queryKey: doctorDashboardQueryKeys.all,
+      });
     },
   });
 }

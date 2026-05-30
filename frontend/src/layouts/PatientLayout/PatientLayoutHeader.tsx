@@ -47,7 +47,7 @@ export default function PatientHeaderLayout({ patient }: Props) {
             value={`${patient.age} / ${capitalize(patient.gender)}`}
           />
           <InfoBlock label="Physician" value={patient.physician} />
-          <InfoBlock label="Admission" value={patient.admissionDate} />
+          <InfoBlock label="Admission" value={patient.admissionDate ?? "Unknown"} />
         </div>
       </div>
     </section>

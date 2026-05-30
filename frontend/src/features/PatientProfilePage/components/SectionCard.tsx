@@ -11,7 +11,7 @@ export default function SectionCard({
 }: SectionCardProps) {
   return (
     <div
-      className={`rounded-3xl border border-stroke/60 app-surface app-text-primary p-5 shadow-sm ${className}`}
+      className={`rounded-3xl h-fit border border-stroke/60 app-surface app-text-primary p-5 shadow-sm ${className}`}
     >
       {children}
     </div>

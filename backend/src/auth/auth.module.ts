@@ -19,7 +19,7 @@ import { PatientsModule } from 'src/patients/patients.module';
       }),
     }),
     DbModule,
-    DoctorsModule,
+    forwardRef(() => DoctorsModule),
     forwardRef(() => PatientsModule),
   ],
   controllers: [AuthController],
