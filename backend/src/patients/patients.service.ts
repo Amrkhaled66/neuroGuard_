@@ -12,6 +12,7 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import bcrypt from 'bcrypt';
 import * as schema from 'src/db/index';
 import { desc, eq, inArray, or, sql } from 'drizzle-orm';
+import { Roles } from 'src/common/enums/roles.enum';
 
 type PatientProfileBase = {
   id: number;
@@ -107,6 +108,52 @@ export class PatientsService {
     }
 
     if (patient.doctorId !== doctorId) {
+      throw new ForbiddenException('You do not have access to this patient');
+    }
+
+    return patient;
+  }
+
+  private async getPatientAccessProfile(patientId: number) {
+    const [patient] = (await this.db
+      .select({
+        id: schema.patients.id,
+        firstName: schema.patients.firstName,
+        lastName: schema.patients.lastName,
+        medicalId: schema.patients.medicalId,
+        birthDate: schema.patients.birthDate,
+        gender: schema.patients.gender,
+        status: schema.patients.status,
+        doctorId: schema.patients.doctorId,
+        doctorFirstName: schema.doctors.firstName,
+        doctorLastName: schema.doctors.lastName,
+      })
+      .from(schema.patients)
+      .innerJoin(
+        schema.doctors,
+        eq(schema.patients.doctorId, schema.doctors.id),
+      )
+      .where(eq(schema.patients.id, patientId))) as PatientProfileBase[];
+
+    if (!patient) {
+      throw new NotFoundException('Patient not found');
+    }
+
+    return patient;
+  }
+
+  private async ensurePatientAccess(
+    patientId: number,
+    currentUserId: number,
+    role: Roles,
+  ) {
+    const patient = await this.getPatientAccessProfile(patientId);
+
+    if (role === Roles.DOCTOR && patient.doctorId !== currentUserId) {
+      throw new ForbiddenException('You do not have access to this patient');
+    }
+
+    if (role === Roles.PATIENT && patient.id !== currentUserId) {
       throw new ForbiddenException('You do not have access to this patient');
     }
 
@@ -374,6 +421,250 @@ export class PatientsService {
         },
       ],
       trend: undefined,
+    };
+  }
+
+  async getPatientOverview(patientId: number, currentUserId: number, role: Roles) {
+    const patient = await this.ensurePatientAccess(patientId, currentUserId, role);
+
+    const sessions = await this.db
+      .select({
+        id: schema.sessions.id,
+        status: schema.sessions.status,
+        duration: schema.sessions.duration,
+        createdAt: schema.sessions.createdAt,
+      })
+      .from(schema.sessions)
+      .where(eq(schema.sessions.patientId, patientId))
+      .orderBy(desc(schema.sessions.createdAt), desc(schema.sessions.id));
+
+    const sessionIds = sessions.map((session) => session.id);
+    const analyzedSessions = sessions.filter(
+      (session) => session.status === 'analyzed',
+    );
+
+    const seizureEvents = analyzedSessions.length
+      ? await this.db
+          .select({
+            eventId: schema.seizureEvents.id,
+            sessionId: schema.seizureEvents.sessionId,
+            startTimeSeconds: schema.seizureEvents.startTimeSeconds,
+            endTimeSeconds: schema.seizureEvents.endTimeSeconds,
+            sessionDate: schema.sessions.createdAt,
+          })
+          .from(schema.seizureEvents)
+          .innerJoin(
+            schema.sessions,
+            eq(schema.seizureEvents.sessionId, schema.sessions.id),
+          )
+          .where(
+            inArray(
+              schema.seizureEvents.sessionId,
+              analyzedSessions.map((session) => session.id),
+            ),
+          )
+      : [];
+
+    const patientMedications = await this.db
+      .select({
+        id: schema.patientMedications.id,
+        dosage: schema.patientMedications.dosage,
+        frequency: schema.patientMedications.frequency,
+        instruction: schema.patientMedications.instruction,
+        status: schema.patientMedications.status,
+        startDate: schema.patientMedications.startDate,
+        endDate: schema.patientMedications.endDate,
+        medicationName: schema.medications.name,
+        medicationForm: schema.medications.form,
+      })
+      .from(schema.patientMedications)
+      .innerJoin(
+        schema.medications,
+        eq(schema.patientMedications.medicationId, schema.medications.id),
+      )
+      .where(eq(schema.patientMedications.patientId, patientId))
+      .orderBy(desc(schema.patientMedications.id));
+
+    const medicationLogs = patientMedications.length
+      ? await this.db
+          .select({
+            id: schema.medicationLogs.id,
+            patientMedicationId: schema.medicationLogs.patientMedicationId,
+            status: schema.medicationLogs.status,
+            takenAt: schema.medicationLogs.takenAt,
+          })
+          .from(schema.medicationLogs)
+          .where(
+            inArray(
+              schema.medicationLogs.patientMedicationId,
+              patientMedications.map((medication) => medication.id),
+            ),
+          )
+          .orderBy(
+            desc(schema.medicationLogs.takenAt),
+            desc(schema.medicationLogs.id),
+          )
+      : [];
+
+    const notifications = await this.db
+      .select({
+        id: schema.notifications.id,
+        title: schema.notifications.title,
+        message: schema.notifications.message,
+        isRead: schema.notifications.isRead,
+        createdAt: schema.notifications.createdAt,
+        readAt: schema.notifications.readAt,
+      })
+      .from(schema.notifications)
+      .where(eq(schema.notifications.userId, patientId))
+      .orderBy(desc(schema.notifications.createdAt), desc(schema.notifications.id));
+
+    const endDate = new Date();
+    endDate.setUTCHours(23, 59, 59, 999);
+    const startDate = new Date(endDate);
+    startDate.setUTCHours(0, 0, 0, 0);
+    startDate.setUTCDate(startDate.getUTCDate() - 6);
+
+    const trendDates: string[] = [];
+    const cursor = new Date(startDate);
+    while (cursor <= endDate) {
+      trendDates.push(cursor.toISOString().slice(0, 10));
+      cursor.setUTCDate(cursor.getUTCDate() + 1);
+    }
+
+    const trendMap = new Map(trendDates.map((date) => [date, 0]));
+    let longestEvent:
+      | {
+          durationSeconds: number;
+          sessionDate: string | null;
+        }
+      | null = null;
+
+    for (const event of seizureEvents) {
+      if (!event.sessionDate) {
+        continue;
+      }
+
+      const key = event.sessionDate.toISOString().slice(0, 10);
+      trendMap.set(key, (trendMap.get(key) ?? 0) + 1);
+
+      const durationSeconds = Math.max(
+        0,
+        event.endTimeSeconds - event.startTimeSeconds,
+      );
+      if (!longestEvent || durationSeconds > longestEvent.durationSeconds) {
+        longestEvent = {
+          durationSeconds,
+          sessionDate: event.sessionDate.toISOString(),
+        };
+      }
+    }
+
+    const adherenceWindowStart = new Date();
+    adherenceWindowStart.setUTCHours(0, 0, 0, 0);
+    adherenceWindowStart.setUTCDate(adherenceWindowStart.getUTCDate() - 6);
+
+    const weeklyLogs = medicationLogs.filter(
+      (log) => log.takenAt && log.takenAt >= adherenceWindowStart,
+    );
+    const takenCount = weeklyLogs.filter((log) => log.status === 'taken').length;
+    const missedCount = weeklyLogs.filter(
+      (log) => log.status === 'missed',
+    ).length;
+    const scheduledCount = weeklyLogs.filter(
+      (log) => log.status === 'scheduled',
+    ).length;
+    const actionableLogs = takenCount + missedCount;
+    const adherenceRate =
+      actionableLogs === 0 ? 0 : Math.round((takenCount / actionableLogs) * 100);
+
+    const lastSession = sessions[0] ?? null;
+    const unreadNotifications = notifications.filter(
+      (notification) => !notification.isRead,
+    ).length;
+    const activeMedications = patientMedications.filter(
+      (medication) => medication.status === 'active',
+    );
+    const nextMedication = activeMedications[0] ?? null;
+
+    return {
+      patient: {
+        id: patient.id,
+        fullName: `${patient.firstName} ${patient.lastName}`,
+        medicalId: patient.medicalId,
+        age: this.calculateAge(patient.birthDate),
+        status: patient.status ?? 'stable',
+        physician: `Dr. ${patient.doctorFirstName} ${patient.doctorLastName}`,
+      },
+      stats: {
+        totalSeizures: seizureEvents.length,
+        activeMedications: activeMedications.length,
+        unreadNotifications,
+        lastSessionDate: lastSession?.createdAt
+          ? lastSession.createdAt.toISOString()
+          : null,
+      },
+      seizureTrend: trendDates.map((date) => ({
+        date,
+        seizureCount: trendMap.get(date) ?? 0,
+      })),
+      medicationAdherence: {
+        takenCount,
+        missedCount,
+        scheduledCount,
+        adherenceRate,
+      },
+      recentAlerts: notifications.slice(0, 4).map((notification) => ({
+        id: notification.id,
+        title: notification.title,
+        message: notification.message,
+        isRead: notification.isRead,
+        createdAt: notification.createdAt?.toISOString() ?? null,
+      })),
+      latestSeizureInsight:
+        seizureEvents.length === 0
+          ? {
+              title: 'No recent seizure events',
+              description:
+                analyzedSessions.length === 0
+                  ? 'No analyzed EEG sessions are available yet.'
+                  : 'No seizures were recorded in the latest analyzed sessions.',
+            }
+          : {
+              title: `${seizureEvents.length} seizure events recorded`,
+              description: longestEvent
+                ? `Longest recent event lasted ${Math.round(
+                    longestEvent.durationSeconds / 60,
+                  )} min on ${
+                    longestEvent.sessionDate
+                      ? new Date(longestEvent.sessionDate).toLocaleDateString(
+                          'en-US',
+                          {
+                            month: 'short',
+                            day: 'numeric',
+                          },
+                        )
+                      : 'an unknown date'
+                  }.`
+                : 'Recent seizure data is available.',
+            },
+      nextMedication: nextMedication
+        ? {
+            id: nextMedication.id,
+            name: nextMedication.medicationName,
+            dosage: nextMedication.dosage,
+            frequency: nextMedication.frequency,
+            instruction: nextMedication.instruction,
+          }
+        : null,
+      monitoringSummary: {
+        sessionCount: sessions.length,
+        analyzedSessions: analyzedSessions.length,
+        totalMonitoringTime: this.formatDurationMinutes(
+          sessions.reduce((sum, session) => sum + Number(session.duration ?? 0), 0),
+        ),
+        latestSessionStatus: lastSession?.status ?? null,
+      },
     };
   }
 

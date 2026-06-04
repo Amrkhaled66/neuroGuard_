@@ -1,14 +1,14 @@
 import { useCallback, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "@/features/auth/context/useAuth";
-import AddNotificationModal from "@features/NotificationPage/components/AddNotificationModal";
-import CommunicationHealthCard from "@features/NotificationPage/components/CommunicationHealthCard";
-import CommunicationLog from "@features/NotificationPage/components/CommunicationLog";
 import {
+  AddNotificationModal,
+  CommunicationHealthCard,
+  CommunicationLog,
   usePatientNotifications,
   useUpdatePatientNotificationReadStatus,
-} from "@features/NotificationPage/hooks";
-import type { NotificationItem } from "@features/NotificationPage/types";
+} from "@/features/doctor/patients/notifications";
+import type { NotificationItem } from "@/features/doctor/patients/notifications";
 import { USER_ROLES } from "@/shared/interfaces/IUser";
 import Button from "@/shared/ui/Button";
 import { Alert } from "@/shared/utils/alert";

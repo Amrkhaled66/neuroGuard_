@@ -1,6 +1,8 @@
 import { useState, memo, useCallback } from "react";
-import AddPatientModal from "@/features/patients/components/AddPatientModal";
-import PatientsTable from "@/features/patients/components/PatientsTable";
+import {
+  AddPatientModal,
+  PatientsTable,
+} from "@/features/doctor/patients/list";
 import PageHeader from "@/shared/components/PageHeader";
 import Button from "@/shared/ui/Button";
 import { IoPersonAddOutline } from "react-icons/io5";

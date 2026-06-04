@@ -9,11 +9,11 @@ import {
   DoctorDashboardLayout,
   PatientLayout,
 } from "@/layouts/index";
-import PatientPortalLayout from "@/features/patient-portal/layout/PatientPortalLayout";
-import PatientPortalProfilePage from "@/features/patient-portal/pages/PatientPortalProfilePage";
-import PatientPortalSessionsPage from "@/features/patient-portal/pages/PatientPortalSessionsPage";
-import PatientPortalSeizuresPage from "@/features/patient-portal/pages/PatientPortalSeizuresPage";
-import PatientPortalMedicationsPage from "@/features/patient-portal/pages/PatientPortalMedicationsPage";
+import PatientPortalLayout from "@/features/patient/portal/layout";
+import { PatientPortalProfilePage } from "@/features/patient/overview";
+import { PatientPortalSeizuresPage } from "@/features/patient/seizures";
+import { PatientPortalMedicationsPage } from "@/features/patient/medications";
+import { PatientPortalNotificationsPage } from "@/features/patient/notifications";
 
 export function AppRouter() {
   return (
@@ -112,16 +112,16 @@ export function AppRouter() {
             element={<PatientPortalProfilePage />}
           />
           <Route
-            path={routePaths.patientEegSessions}
-            element={<PatientPortalSessionsPage />}
-          />
-          <Route
             path={routePaths.patientSeizures}
             element={<PatientPortalSeizuresPage />}
           />
           <Route
             path={routePaths.patientMedications}
             element={<PatientPortalMedicationsPage />}
+          />
+          <Route
+            path={routePaths.patientNotifications}
+            element={<PatientPortalNotificationsPage />}
           />
         </Route>
       </Route>

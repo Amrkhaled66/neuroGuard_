@@ -8,7 +8,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { formatTrendLabel } from "@/features/SeizuresPage/types";
+import { formatTrendLabel } from "@/features/doctor/patients/seizures";
 
 export type SeizureLineChartPoint = {
   date: string;

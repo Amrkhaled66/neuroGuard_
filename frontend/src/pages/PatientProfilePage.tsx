@@ -5,7 +5,7 @@ import {
   KeyStatsCard,
   MedicationsCard,
   RiskAssessmentCard,
-} from "@features/PatientProfilePage";
+} from "@/features/doctor/patients/profile";
 import type { PatientLayoutOutletContext } from "@/layouts/PatientLayout/PatientLayout";
 
 export default function PatientProfilePage() {

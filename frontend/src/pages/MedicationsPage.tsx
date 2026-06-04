@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import Button from "@/shared/ui/Button";
-import { AddMedicationModal, PatientMedicationTable } from "@/features/medications/components";
-import type { PatientMedication } from "@/features/medications/services";
+import {
+  AddMedicationModal,
+  PatientMedicationTable,
+} from "@/features/doctor/patients/medications";
+import type { PatientMedication } from "@/features/doctor/patients/medications";
 
 export default function MedicationsPage() {
   const { patientId } = useParams<{ patientId: string }>();

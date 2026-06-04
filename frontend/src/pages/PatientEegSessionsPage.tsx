@@ -1,14 +1,16 @@
 import { memo, useCallback, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import Button from "@/shared/ui/Button";
-import AddEegSessionModal from "@features/PatientEegSessionsPage/components/AddEegSessionModal";
-import EegSessionsDataTable from "@features/PatientEegSessionsPage/components/EegSessionsDataTable";
-import EegSessionsFilters from "@features/PatientEegSessionsPage/components/EegSessionsFilters";
-import { usePatientSessions } from "@features/PatientEegSessionsPage/hooks";
+import {
+  AddEegSessionModal,
+  EegSessionsDataTable,
+  EegSessionsFilters,
+  usePatientSessions,
+} from "@/features/doctor/patients/sessions";
 import {
   type SessionHistory,
   type SessionStatus,
-} from "@features/PatientEegSessionsPage/types";
+} from "@/features/doctor/patients/sessions";
 
 const MemoizedEegSessionsDataTable = memo(EegSessionsDataTable);
 const MemoizedEegSessionsFilters = memo(EegSessionsFilters);

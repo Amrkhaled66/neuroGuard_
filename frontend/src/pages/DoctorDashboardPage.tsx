@@ -1,10 +1,12 @@
 import { useState } from "react";
-import SeizureActivityChart from "@/features/dashboard/components/SeizureActivityChart";
-import RealTimeInsights from "@/features/dashboard/components/RealTimeInsights";
-import QuickActions from "@/features/dashboard/components/QuickActions";
-import CriticalPatients from "@/features/dashboard/components/CriticalPatients";
-import { useDoctorDashboard } from "@/features/dashboard";
-import AddPatientModal from "@/features/patients/components/AddPatientModal";
+import {
+  CriticalPatients,
+  QuickActions,
+  RealTimeInsights,
+  SeizureActivityChart,
+  useDoctorDashboard,
+} from "@/features/doctor/dashboard";
+import { AddPatientModal } from "@/features/doctor/patients/list";
 
 export function DashboardPage() {
   const [isAddPatientOpen, setIsAddPatientOpen] = useState(false);

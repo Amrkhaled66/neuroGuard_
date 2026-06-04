@@ -8,8 +8,9 @@ export const routePaths = {
   patients: "/patients",
   patientDetails: "/patients/:patientId",
   patientRoot: "/patient",
-  patientProfile: "/patient/profile",
+  patientProfile: "/patient/overview",
   patientEegSessions: "/patient/eeg-sessions",
   patientSeizures: "/patient/seizures",
   patientMedications: "/patient/medications",
+  patientNotifications: "/patient/notifications",
 } as const;

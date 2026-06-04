@@ -14,7 +14,7 @@ import {
   type SummaryCardItem,
   formatDateTime,
   formatDurationFromSeconds,
-} from "@features/SeizuresPage";
+} from "@/features/doctor/patients/seizures";
 
 const PAGE_SIZE = 10;
 

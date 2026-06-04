@@ -5,7 +5,7 @@ import { MdOutlineGroups2 } from "react-icons/md";
 import { SiGoogleanalytics } from "react-icons/si";
 import { LuBrain } from "react-icons/lu";
 import { GoAlertFill } from "react-icons/go";
-import { useDoctorDashboard } from "@/features/dashboard";
+import { useDoctorDashboard } from "@/features/doctor/dashboard";
 
 import StaticCardSkeleton from "../ui/skeletons/StaticCardSkeleton";
 const containerVariants = {

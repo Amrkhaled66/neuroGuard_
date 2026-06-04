@@ -54,6 +54,17 @@ export class PatientsController {
     return this.patientsService.findProfile(id, doctorId);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([RoleEnum.PATIENT])
+  @Get('me/overview')
+  getMyOverview(@CurrentUser('id') patientId: number) {
+    return this.patientsService.getPatientOverview(
+      patientId,
+      patientId,
+      RoleEnum.PATIENT,
+    );
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.patientsService.findOne(id);

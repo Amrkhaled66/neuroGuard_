@@ -144,7 +144,10 @@ export class NotificationsService {
         readAt: updateNotificationStatusDto.isRead ? new Date() : null,
       })
       .where(
+        and(
           eq(schema.notifications.id, notificationId),
+          eq(schema.notifications.userId, patientId),
+        ),
       )
       .returning();
 

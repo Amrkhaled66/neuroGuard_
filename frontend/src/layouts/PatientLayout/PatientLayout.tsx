@@ -2,11 +2,11 @@ import { useOutlet, useParams, useLocation } from "react-router-dom";
 import PatientLayoutHeader from "./PatientLayoutHeader";
 import PatientTabs from "./PatientTabs";
 import { motion, AnimatePresence } from "framer-motion";
-import { usePatientProfile } from "@/features/patients/hooks";
+import { usePatientProfile } from "@/features/doctor/patients/profile";
 import type {
   PatientProfilePatient,
   PatientProfileResponse,
-} from "@/features/patients/services";
+} from "@/features/doctor/patients/profile";
 
 export interface PatientI extends Omit<PatientProfilePatient, "id"> {
   id: string;
