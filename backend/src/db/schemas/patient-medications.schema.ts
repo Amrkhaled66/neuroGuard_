@@ -4,6 +4,7 @@ import {
   integer,
   date,
   text,
+  time,
   index,
 } from 'drizzle-orm/pg-core';
 import { patients } from './patients.schema';
@@ -23,6 +24,7 @@ export const patientMedications = table(
     dosage: varchar(),
     frequency: varchar(),
     instruction: text(),
+    scheduledTime: time('scheduled_time'),
     startDate: date('start_date'),
     endDate: date('end_date'),
     status: patientMedicationStatusEnum('status').default('active'),

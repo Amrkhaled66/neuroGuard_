@@ -39,7 +39,28 @@ type PatientProfileMedication = {
   name: string;
   dosage: string | null;
   frequency: string | null;
+  scheduledTime: string | null;
   status: string | null;
+};
+
+type PatientOverviewMedication = {
+  id: number;
+  dosage: string | null;
+  frequency: string | null;
+  instruction: string | null;
+  status: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  scheduledTime: string | null;
+  medicationName: string;
+  medicationForm: string;
+};
+
+type PatientOverviewMedicationLog = {
+  id: number;
+  patientMedicationId: number;
+  status: 'scheduled' | 'taken' | 'missed';
+  takenAt: Date | null;
 };
 
 @Injectable()
@@ -80,6 +101,67 @@ export class PatientsService {
     }
 
     return `${hours}h ${remainingMinutes}m`;
+  }
+
+  private formatTimeLabel(value: string) {
+    const [hoursString, minutesString] = value.split(':');
+    const hours = Number(hoursString);
+    const minutes = Number(minutesString);
+
+    if (
+      Number.isNaN(hours) ||
+      Number.isNaN(minutes) ||
+      hours < 0 ||
+      hours > 23 ||
+      minutes < 0 ||
+      minutes > 59
+    ) {
+      return value;
+    }
+
+    return new Intl.DateTimeFormat('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    }).format(new Date(2026, 0, 1, hours, minutes));
+  }
+
+  private formatNextDoseLabel(date: Date) {
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfTomorrow = new Date(startOfToday);
+    startOfTomorrow.setDate(startOfTomorrow.getDate() + 1);
+    const startOfTarget = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const timeLabel = new Intl.DateTimeFormat('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    }).format(date);
+
+    if (startOfTarget.getTime() === startOfToday.getTime()) {
+      return `Today, ${timeLabel}`;
+    }
+
+    if (startOfTarget.getTime() === startOfTomorrow.getTime()) {
+      return `Tomorrow, ${timeLabel}`;
+    }
+
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    }).format(date);
+  }
+
+  private getNextDoseDate(baseDate: Date, scheduledTime: string) {
+    const [hoursString, minutesString] = scheduledTime.split(':');
+    const hours = Number(hoursString);
+    const minutes = Number(minutesString);
+    const doseDate = new Date(baseDate);
+    doseDate.setHours(hours, minutes, 0, 0);
+    return doseDate;
   }
 
   private async getPatientForDoctor(patientId: number, doctorId: number) {
@@ -315,6 +397,7 @@ export class PatientsService {
         name: schema.medications.name,
         dosage: schema.patientMedications.dosage,
         frequency: schema.patientMedications.frequency,
+        scheduledTime: schema.patientMedications.scheduledTime,
         status: schema.patientMedications.status,
       })
       .from(schema.patientMedications)
@@ -398,6 +481,9 @@ export class PatientsService {
           dosage:
             [item.dosage, item.frequency].filter(Boolean).join(' / ') ||
             'Unspecified',
+          scheduledTime: item.scheduledTime
+            ? this.formatTimeLabel(item.scheduledTime)
+            : 'Unscheduled',
           status: this.capitalize(item.status ?? 'active'),
         })),
       risk: riskConfig,
@@ -465,7 +551,7 @@ export class PatientsService {
           )
       : [];
 
-    const patientMedications = await this.db
+    const patientMedications = (await this.db
       .select({
         id: schema.patientMedications.id,
         dosage: schema.patientMedications.dosage,
@@ -474,6 +560,7 @@ export class PatientsService {
         status: schema.patientMedications.status,
         startDate: schema.patientMedications.startDate,
         endDate: schema.patientMedications.endDate,
+        scheduledTime: schema.patientMedications.scheduledTime,
         medicationName: schema.medications.name,
         medicationForm: schema.medications.form,
       })
@@ -483,7 +570,7 @@ export class PatientsService {
         eq(schema.patientMedications.medicationId, schema.medications.id),
       )
       .where(eq(schema.patientMedications.patientId, patientId))
-      .orderBy(desc(schema.patientMedications.id));
+      .orderBy(desc(schema.patientMedications.id))) as PatientOverviewMedication[];
 
     const medicationLogs = patientMedications.length
       ? await this.db
@@ -504,7 +591,7 @@ export class PatientsService {
             desc(schema.medicationLogs.takenAt),
             desc(schema.medicationLogs.id),
           )
-      : [];
+      : [] as PatientOverviewMedicationLog[];
 
     const notifications = await this.db
       .select({
@@ -585,7 +672,60 @@ export class PatientsService {
     const activeMedications = patientMedications.filter(
       (medication) => medication.status === 'active',
     );
-    const nextMedication = activeMedications[0] ?? null;
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const endOfToday = new Date(startOfToday);
+    endOfToday.setDate(endOfToday.getDate() + 1);
+
+    const takenMedicationIdsToday = new Set(
+      medicationLogs
+        .filter(
+          (log) =>
+            log.status === 'taken' &&
+            log.takenAt &&
+            log.takenAt >= startOfToday &&
+            log.takenAt < endOfToday,
+        )
+        .map((log) => log.patientMedicationId),
+    );
+
+    const schedulableMedications = activeMedications.filter(
+      (medication) => medication.scheduledTime,
+    );
+    const totalScheduledToday = schedulableMedications.length;
+    const takenScheduledToday = schedulableMedications.filter((medication) =>
+      takenMedicationIdsToday.has(medication.id),
+    ).length;
+    const remainingScheduledToday = Math.max(totalScheduledToday - takenScheduledToday, 0);
+    const todayProgress = {
+      takenCount: takenScheduledToday,
+      totalCount: totalScheduledToday,
+      remainingCount: remainingScheduledToday,
+      completionRatio:
+        totalScheduledToday === 0 ? 0 : takenScheduledToday / totalScheduledToday,
+    };
+
+    const remainingTodayCandidates = schedulableMedications
+      .filter((medication) => !takenMedicationIdsToday.has(medication.id))
+      .map((medication) => ({
+        medication,
+        nextDoseDate: this.getNextDoseDate(now, medication.scheduledTime!),
+        isTakenToday: false,
+      }))
+      .sort((left, right) => left.nextDoseDate.getTime() - right.nextDoseDate.getTime());
+
+    const tomorrowBase = new Date(startOfToday);
+    tomorrowBase.setDate(tomorrowBase.getDate() + 1);
+    const tomorrowCandidates = schedulableMedications
+      .map((medication) => ({
+        medication,
+        nextDoseDate: this.getNextDoseDate(tomorrowBase, medication.scheduledTime!),
+        isTakenToday: takenMedicationIdsToday.has(medication.id),
+      }))
+      .sort((left, right) => left.nextDoseDate.getTime() - right.nextDoseDate.getTime());
+
+    const nextMedicationCandidate =
+      remainingTodayCandidates[0] ?? tomorrowCandidates[0] ?? null;
 
     return {
       patient: {
@@ -614,6 +754,7 @@ export class PatientsService {
         scheduledCount,
         adherenceRate,
       },
+      todayProgress,
       recentAlerts: notifications.slice(0, 4).map((notification) => ({
         id: notification.id,
         title: notification.title,
@@ -648,13 +789,19 @@ export class PatientsService {
                   }.`
                 : 'Recent seizure data is available.',
             },
-      nextMedication: nextMedication
+      nextMedication: nextMedicationCandidate
         ? {
-            id: nextMedication.id,
-            name: nextMedication.medicationName,
-            dosage: nextMedication.dosage,
-            frequency: nextMedication.frequency,
-            instruction: nextMedication.instruction,
+            id: nextMedicationCandidate.medication.id,
+            name: nextMedicationCandidate.medication.medicationName,
+            dosage: nextMedicationCandidate.medication.dosage,
+            frequency: nextMedicationCandidate.medication.frequency,
+            instruction: nextMedicationCandidate.medication.instruction,
+            scheduledTime: nextMedicationCandidate.medication.scheduledTime,
+            nextDoseAt: nextMedicationCandidate.nextDoseDate.toISOString(),
+            nextDoseLabel: this.formatNextDoseLabel(
+              nextMedicationCandidate.nextDoseDate,
+            ),
+            isTakenToday: nextMedicationCandidate.isTakenToday,
           }
         : null,
       monitoringSummary: {

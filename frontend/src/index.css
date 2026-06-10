@@ -182,7 +182,7 @@
   --font-body: "Inter", sans-serif;
   --font-label: "Inter", sans-serif;
 
-  --color-background: #F8FAF9;
+  --color-background: #f8faf9;
   --color-brand-primary: var(--brand-primary);
   --color-brand-primary-hover: var(--brand-primary-hover);
   --color-brand-primary-soft: var(--brand-primary-soft);

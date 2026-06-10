@@ -35,7 +35,6 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     clearUser();
   };
   const isAuthenticated = !!authData.token && !!authData.user;
-
   const contextValue = {
     authData,
     login,

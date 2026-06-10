@@ -2,6 +2,18 @@ import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import Tabs from "@/shared/ui/Tabs";
 import { patientPortalRouteMap } from "@/features/patient/portal/routes";
+import type { AppHeaderNavItem } from "@/shared/components/AppHeader";
+
+export function usePatientPortalNavItems(): AppHeaderNavItem[] {
+  return useMemo(
+    () =>
+      Object.values(patientPortalRouteMap).map((tab) => ({
+        label: tab.label,
+        path: tab.path,
+      })),
+    [],
+  );
+}
 
 export default function PatientPortalTabs() {
   const { pathname } = useLocation();

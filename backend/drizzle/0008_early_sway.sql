@@ -1,0 +1,1 @@
+ALTER TABLE "patient_medications" ADD COLUMN "scheduled_time" time;

@@ -5,6 +5,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  Matches,
 } from 'class-validator';
 
 import { patientMedicationStatusEnum } from 'src/db/schemas/enums';
@@ -24,6 +25,13 @@ export class CreatePatientMedicationDto {
   @IsOptional()
   @IsString()
   instruction?: string;
+
+  @IsOptional()
+  @IsString()
+  @Matches(/^([01]\d|2[0-3]):[0-5]\d$/, {
+    message: 'scheduledTime must be in HH:mm format',
+  })
+  scheduledTime?: string;
 
   @IsOptional()
   @IsDateString()

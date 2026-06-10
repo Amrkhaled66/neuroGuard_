@@ -1,21 +1,21 @@
 import { Outlet } from "react-router-dom";
-import PatientPortalTabs from "../navigation/PatientPortalTabs";
+import AppHeader from "@/shared/components/AppHeader";
+import { useAuth } from "@/features/auth/context/useAuth";
+import { usePatientPortalNavItems } from "../navigation/PatientPortalTabs";
 
 export default function PatientPortalLayout() {
+  const { authData } = useAuth();
+  const user = authData.user;
+  const navItems = usePatientPortalNavItems();
+  const name =
+    [user?.firstName, user?.lastName].filter(Boolean).join(" ") || "Patient";
+
   return (
-    <div className="container mx-auto min-h-dvh w-full px-4 py-8">
-      <div className="space-y-6">
-        <section className="app-surface rounded-3xl p-6">
-          <h1 className="app-text-primary text-3xl font-bold">Patient Dashboard</h1>
-          <p className="app-text-secondary mt-2">
-            Your health data, alerts, and treatment check-ins in one place.
-          </p>
-        </section>
-
-        <PatientPortalTabs />
-
+    <div className="space-y-0 pb-8">
+      <AppHeader navItems={navItems} userName={name} />
+      <main className="container mx-auto min-h-screen px-4">
         <Outlet />
-      </div>
+      </main>
     </div>
   );
 }
