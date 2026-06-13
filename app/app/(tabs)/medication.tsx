@@ -1,16 +1,20 @@
-import { ActivityIndicator, Pressable, SafeAreaView, ScrollView, Text, View } from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { ActiveMedicationsList } from '@/features/medication/components/ActiveMedicationsList';
+import { MedicationAdherenceInsightsCard } from '@/features/medication/components/MedicationAdherenceInsightsCard';
+import { MedicationDetailsSheet } from '@/features/medication/components/MedicationDetailsSheet';
 import { MedicationHeader } from '@/features/medication/components/MedicationHeader';
 import { NextDoseCard } from '@/features/medication/components/NextDoseCard';
 import { TodayMedicationSummaryCard } from '@/features/medication/components/TodayMedicationSummaryCard';
 import { TodayScheduleList } from '@/features/medication/components/TodayScheduleList';
 import { useMedicationDashboard } from '@/features/medication/hooks/useMedicationDashboard';
+import type { ActiveMedicationCardItem } from '@/features/medication/types/medication.types';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function MedicationScreen() {
+  const [selectedMedication, setSelectedMedication] = useState<ActiveMedicationCardItem | null>(null);
   const {
     dashboard,
-    selectedRange,
-    setSelectedRange,
     isLoading,
     isError,
     isSubmitting,
@@ -58,27 +62,6 @@ export default function MedicationScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerClassName="gap-[18px] px-5 py-7">
         <MedicationHeader />
-
-        <View className="flex-row rounded-[18px] border border-border-subtle bg-surface-raised p-1 shadow-card">
-          {[7, 30].map((range) => {
-            const isSelected = selectedRange === range;
-
-            return (
-              <Pressable
-                key={range}
-                onPress={() => setSelectedRange(range as 7 | 30)}
-                className={`min-h-11 flex-1 items-center justify-center rounded-[14px] ${isSelected ? 'bg-brand-primary' : 'bg-transparent'
-                  }`}>
-                <Text
-                  className={`text-sm font-bold ${isSelected ? 'text-white' : 'text-text-secondary'
-                    }`}>
-                  Last {range} days
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-
         <TodayMedicationSummaryCard summary={dashboard.todaySummary} />
         <NextDoseCard
           dose={dashboard.nextDose}
@@ -92,48 +75,20 @@ export default function MedicationScreen() {
           isSubmitting={isSubmitting}
           activeMutationId={activeMutationId}
         />
-
-        <View className="rounded-[24px] border border-border-subtle bg-surface-raised p-5 shadow-card">
-          <Text className="text-lg font-bold text-brand-secondary">Adherence Overview</Text>
-          <View className="mt-4 flex-row flex-wrap gap-3">
-            <View className="min-w-[140px] flex-1 rounded-[18px] bg-app-background-soft p-4">
-              <Text className="text-xs font-bold uppercase tracking-[1px] text-text-muted">
-                Active Medications
-              </Text>
-              <Text className="mt-2 text-2xl font-bold text-text-primary">
-                {dashboard.adherenceSummary.activeMedications}
-              </Text>
-            </View>
-            <View className="min-w-[140px] flex-1 rounded-[18px] bg-app-background-soft p-4">
-              <Text className="text-xs font-bold uppercase tracking-[1px] text-text-muted">
-                Adherence Rate
-              </Text>
-              <Text className="mt-2 text-2xl font-bold text-text-primary">
-                {dashboard.adherenceSummary.adherenceRate}%
-              </Text>
-            </View>
-            <View className="min-w-[140px] flex-1 rounded-[18px] bg-app-background-soft p-4">
-              <Text className="text-xs font-bold uppercase tracking-[1px] text-text-muted">
-                Taken Logs
-              </Text>
-              <Text className="mt-2 text-2xl font-bold text-text-primary">
-                {dashboard.adherenceSummary.takenCount}
-              </Text>
-            </View>
-            <View className="min-w-35 flex-1 rounded-[18px] bg-app-background-soft p-4">
-              <Text className="text-xs font-bold uppercase tracking-[1px] text-text-muted">
-                Missed Logs
-              </Text>
-              <Text className="mt-2 text-2xl font-bold text-text-primary">
-                {dashboard.adherenceSummary.missedCount}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        <ActiveMedicationsList medications={dashboard.activeMedications} />
+        <MedicationAdherenceInsightsCard
+          summary={dashboard.adherenceSummary}
+          trend={dashboard.adherenceTrend ?? []}
+        />
+        <ActiveMedicationsList
+          medications={dashboard.activeMedications}
+          onSelectMedication={setSelectedMedication}
+        />
         <View className="h-2" />
       </ScrollView>
+      <MedicationDetailsSheet
+        medication={selectedMedication}
+        onClose={() => setSelectedMedication(null)}
+      />
     </SafeAreaView>
   );
 }

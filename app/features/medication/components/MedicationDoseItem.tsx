@@ -51,29 +51,35 @@ export function MedicationDoseItem({
       </View>
 
       {item.status === 'scheduled' ? (
-        <View className="mt-4 flex-row gap-3">
-          <Pressable
-            disabled={isDisabled}
-            onPress={() => onMarkTaken(item.id)}
-            className={`min-h-[44px] flex-1 flex-row items-center justify-center rounded-[16px] ${
-              isDisabled ? 'bg-brand-primary-soft' : 'bg-brand-primary'
-            }`}>
-            {isSubmitting ? <ActivityIndicator size="small" color="#0e3b31" /> : null}
-            <Text
-              className={`ml-2 text-sm font-bold ${
-                isDisabled ? 'text-brand-secondary' : 'text-white'
+        item.canMarkTaken ? (
+          <View className="mt-4 flex-row gap-3">
+            <Pressable
+              disabled={isDisabled}
+              onPress={() => onMarkTaken(item.id)}
+              className={`min-h-[44px] flex-1 flex-row items-center justify-center rounded-[16px] ${
+                isDisabled ? 'bg-brand-primary-soft' : 'bg-brand-primary'
               }`}>
-              Mark as Taken
-            </Text>
-          </Pressable>
+              {isSubmitting ? <ActivityIndicator size="small" color="#0e3b31" /> : null}
+              <Text
+                className={`ml-2 text-sm font-bold ${
+                  isDisabled ? 'text-brand-secondary' : 'text-white'
+                }`}>
+                Mark as Taken
+              </Text>
+            </Pressable>
 
-          <Pressable
-            disabled={isDisabled}
-            onPress={() => onMarkMissed(item.id)}
-            className="min-h-[44px] flex-1 items-center justify-center rounded-[16px] border border-border-subtle bg-surface-raised">
-            <Text className="text-sm font-bold text-text-secondary">Mark as Missed</Text>
-          </Pressable>
-        </View>
+            <Pressable
+              disabled={isDisabled}
+              onPress={() => onMarkMissed(item.id)}
+              className="min-h-[44px] flex-1 items-center justify-center rounded-[16px] border border-border-subtle bg-surface-raised">
+              <Text className="text-sm font-bold text-text-secondary">Mark as Missed</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <Text className="mt-4 text-sm text-text-secondary">
+            This dose will become available at its scheduled time.
+          </Text>
+        )
       ) : null}
     </View>
   );

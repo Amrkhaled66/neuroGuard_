@@ -102,7 +102,7 @@ export class SessionsService {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        edf_file: basename(filePath),
+        edf_file: filePath,
       }),
     });
 
@@ -111,6 +111,7 @@ export class SessionsService {
     };
 
     if (!response.ok || !payload.success || !Array.isArray(payload.seizures)) {
+      console.log('Model prediction failed:', payload.error)
       throw new Error(payload.error || 'Model prediction failed');
     }
 
@@ -139,6 +140,7 @@ export class SessionsService {
 
   private startAnalysis(sessionId: number) {
     void this.analyzeSession(sessionId).catch(async () => {
+      console.error(`Analysis failed for session ${sessionId}`);
       await this.updateSessionStatus(sessionId, 'failed');
     });
   }

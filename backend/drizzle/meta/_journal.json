@@ -57,6 +57,13 @@
       "when": 1781115858398,
       "tag": "0008_early_sway",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1781370000000,
+      "tag": "0009_clear_yellowjacket",
+      "breakpoints": true
     }
   ]
 }

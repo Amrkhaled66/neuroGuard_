@@ -48,7 +48,6 @@ export function ActiveMedicationCard({ medication }: Props) {
       </View>
 
       <View className="mt-4 gap-2">
-        <Text className="text-sm text-text-secondary">{medication.frequency}</Text>
         <Text className="text-sm leading-6 text-text-secondary">{medication.instruction}</Text>
       </View>
 

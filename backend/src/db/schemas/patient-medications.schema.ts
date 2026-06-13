@@ -22,7 +22,6 @@ export const patientMedications = table(
       .notNull()
       .references(() => medications.id, { onDelete: 'restrict' }),
     dosage: varchar(),
-    frequency: varchar(),
     instruction: text(),
     scheduledTime: time('scheduled_time'),
     startDate: date('start_date'),

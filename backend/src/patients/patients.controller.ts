@@ -65,6 +65,22 @@ export class PatientsController {
     );
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([RoleEnum.PATIENT])
+  @Get(':id/sessions/:sessionId')
+  getPatientSessionDetails(
+    @Param('id', ParseIntPipe) patientId: number,
+    @Param('sessionId', ParseIntPipe) sessionId: number,
+    @CurrentUser('id') currentUserId: number,
+  ) {
+    return this.patientsService.getPatientSessionDetails(
+      patientId,
+      sessionId,
+      currentUserId,
+      RoleEnum.PATIENT,
+    );
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.patientsService.findOne(id);

@@ -38,7 +38,6 @@ type PatientProfileMedication = {
   id: number;
   name: string;
   dosage: string | null;
-  frequency: string | null;
   scheduledTime: string | null;
   status: string | null;
 };
@@ -46,7 +45,6 @@ type PatientProfileMedication = {
 type PatientOverviewMedication = {
   id: number;
   dosage: string | null;
-  frequency: string | null;
   instruction: string | null;
   status: string | null;
   startDate: string | null;
@@ -61,6 +59,14 @@ type PatientOverviewMedicationLog = {
   patientMedicationId: number;
   status: 'scheduled' | 'taken' | 'missed';
   takenAt: Date | null;
+};
+
+type PatientSessionDetailsEvent = {
+  id: number;
+  onsetSide: string | null;
+  onsetRegion: string | null;
+  startTimeSeconds: number;
+  endTimeSeconds: number;
 };
 
 @Injectable()
@@ -396,7 +402,6 @@ export class PatientsService {
         id: schema.patientMedications.id,
         name: schema.medications.name,
         dosage: schema.patientMedications.dosage,
-        frequency: schema.patientMedications.frequency,
         scheduledTime: schema.patientMedications.scheduledTime,
         status: schema.patientMedications.status,
       })
@@ -478,9 +483,7 @@ export class PatientsService {
         })
         .map((item) => ({
           name: item.name,
-          dosage:
-            [item.dosage, item.frequency].filter(Boolean).join(' / ') ||
-            'Unspecified',
+          dosage: item.dosage || 'Unspecified',
           scheduledTime: item.scheduledTime
             ? this.formatTimeLabel(item.scheduledTime)
             : 'Unscheduled',
@@ -555,7 +558,6 @@ export class PatientsService {
       .select({
         id: schema.patientMedications.id,
         dosage: schema.patientMedications.dosage,
-        frequency: schema.patientMedications.frequency,
         instruction: schema.patientMedications.instruction,
         status: schema.patientMedications.status,
         startDate: schema.patientMedications.startDate,
@@ -794,7 +796,6 @@ export class PatientsService {
             id: nextMedicationCandidate.medication.id,
             name: nextMedicationCandidate.medication.medicationName,
             dosage: nextMedicationCandidate.medication.dosage,
-            frequency: nextMedicationCandidate.medication.frequency,
             instruction: nextMedicationCandidate.medication.instruction,
             scheduledTime: nextMedicationCandidate.medication.scheduledTime,
             nextDoseAt: nextMedicationCandidate.nextDoseDate.toISOString(),
@@ -812,6 +813,74 @@ export class PatientsService {
         ),
         latestSessionStatus: lastSession?.status ?? null,
       },
+    };
+  }
+
+  async getPatientSessionDetails(
+    patientId: number,
+    sessionId: number,
+    currentUserId: number,
+    role: Roles,
+  ) {
+    await this.ensurePatientAccess(patientId, currentUserId, role);
+
+    const [session] = await this.db
+      .select({
+        id: schema.sessions.id,
+        patientId: schema.sessions.patientId,
+        duration: schema.sessions.duration,
+        status: schema.sessions.status,
+        note: schema.sessions.note,
+        channelCount: schema.sessions.channelCount,
+        createdAt: schema.sessions.createdAt,
+        updatedAt: schema.sessions.updatedAt,
+      })
+      .from(schema.sessions)
+      .where(eq(schema.sessions.id, sessionId));
+
+    if (!session || session.patientId !== patientId) {
+      throw new NotFoundException('Session not found');
+    }
+
+    const events = (await this.db
+      .select({
+        id: schema.seizureEvents.id,
+        onsetSide: schema.seizureEvents.onsetSide,
+        onsetRegion: schema.seizureEvents.onsetRegion,
+        startTimeSeconds: schema.seizureEvents.startTimeSeconds,
+        endTimeSeconds: schema.seizureEvents.endTimeSeconds,
+      })
+      .from(schema.seizureEvents)
+      .where(eq(schema.seizureEvents.sessionId, sessionId))
+      .orderBy(
+        desc(schema.seizureEvents.startTimeSeconds),
+        desc(schema.seizureEvents.id),
+      )) as PatientSessionDetailsEvent[];
+
+    return {
+      session: {
+        id: session.id,
+        duration: session.duration,
+        status: session.status,
+        note: session.note,
+        channelCount: session.channelCount,
+        createdAt: session.createdAt?.toISOString() ?? null,
+        updatedAt: session.updatedAt?.toISOString() ?? null,
+        seizureCount: events.length,
+      },
+      events: [...events]
+        .sort((left, right) => left.startTimeSeconds - right.startTimeSeconds)
+        .map((event) => ({
+          id: event.id,
+          startTimeSeconds: event.startTimeSeconds,
+          endTimeSeconds: event.endTimeSeconds,
+          durationSeconds: Math.max(
+            0,
+            event.endTimeSeconds - event.startTimeSeconds,
+          ),
+          onsetSide: event.onsetSide,
+          onsetRegion: event.onsetRegion,
+        })),
     };
   }
 

@@ -40,7 +40,6 @@ export type PatientOverviewResponse = {
     id: number;
     name: string;
     dosage?: string | null;
-    frequency?: string | null;
     instruction?: string | null;
   } | null;
   monitoringSummary: {

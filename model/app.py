@@ -57,7 +57,7 @@ def predict_seizures():
         prediction = predict_seizure_windows(edf_path, MODEL_PATH)
     except (ValueError, FileNotFoundError) as exc:
         return jsonify({"success": False, "error": str(exc)}), 400
-    except Exception as exc:  # pragma: no cover - defensive API boundary
+    except Exception as exc:  
         return jsonify({"success": False, "error": str(exc)}), 500
 
     return jsonify(

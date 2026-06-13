@@ -57,7 +57,6 @@ export class PatientMedicationsService {
         patientId: schema.patientMedications.patientId,
         medicationId: schema.patientMedications.medicationId,
         dosage: schema.patientMedications.dosage,
-        frequency: schema.patientMedications.frequency,
         instruction: schema.patientMedications.instruction,
         scheduledTime: schema.patientMedications.scheduledTime,
         startDate: schema.patientMedications.startDate,
@@ -148,7 +147,6 @@ export class PatientMedicationsService {
     const {
       medicationId,
       dosage,
-      frequency,
       instruction,
       scheduledTime,
       startDate,
@@ -162,7 +160,6 @@ export class PatientMedicationsService {
         patientId,
         medicationId,
         dosage,
-        frequency,
         instruction,
         scheduledTime,
         startDate: startDate ? new Date(startDate).toISOString().split('T')[0] : undefined,
@@ -211,7 +208,6 @@ export class PatientMedicationsService {
     const {
       medicationId,
       dosage,
-      frequency,
       instruction,
       scheduledTime,
       startDate,
@@ -225,7 +221,6 @@ export class PatientMedicationsService {
       .set({
         medicationId,
         dosage,
-        frequency,
         instruction,
         scheduledTime,
         startDate: startDate

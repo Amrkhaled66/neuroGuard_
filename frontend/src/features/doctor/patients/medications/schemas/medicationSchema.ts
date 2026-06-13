@@ -15,8 +15,11 @@ const optionalTextField = z.string().trim().optional();
 export const patientMedicationPayloadSchema = z.object({
   medicationId: z.number().int("Medication is required").min(1, "Medication is required"),
   dosage: optionalTextField,
-  frequency: optionalTextField,
   instruction: optionalTextField,
+  scheduledTime: optionalTextField.refine(
+    (value) => !value || /^([01]\d|2[0-3]):[0-5]\d$/.test(value),
+    "Schedule time must be in HH:mm format",
+  ),
   startDate: z.string().min(1, "Start date is required"),
   endDate: optionalTextField,
   status: z.enum(["active", "discontinued"]),

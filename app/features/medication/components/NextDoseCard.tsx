@@ -36,6 +36,7 @@ export function NextDoseCard({ dose, onMarkTaken, isSubmitting = false }: Props)
       </Text>
       <Text className="mt-2 text-base font-semibold text-text-primary">{dose.scheduledLabel}</Text>
       <Text className="mt-1 text-sm text-text-secondary">{dose.instruction}</Text>
+      <Text className="mt-3 text-sm text-text-secondary">{dose.helperText}</Text>
 
       <Pressable
         disabled={isDisabled}
@@ -48,7 +49,7 @@ export function NextDoseCard({ dose, onMarkTaken, isSubmitting = false }: Props)
           className={`ml-2 text-base font-bold ${
             isDisabled ? 'text-brand-secondary' : 'text-white'
           }`}>
-          {dose.isTaken ? 'Taken' : dose.canMarkTaken ? 'Mark as Taken' : 'Scheduled Ahead'}
+          {dose.isTaken ? 'Taken' : dose.canMarkTaken ? 'Mark as Taken' : 'Available Later'}
         </Text>
       </Pressable>
     </View>

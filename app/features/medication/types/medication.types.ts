@@ -1,6 +1,5 @@
 export type MedicationLogStatus = 'scheduled' | 'taken' | 'missed';
 export type PatientMedicationStatus = 'active' | 'discontinued';
-export type MedicationRange = 7 | 30;
 
 export type MedicationLog = {
   id: number;
@@ -20,7 +19,6 @@ export type PatientMedication = {
   patientId: number;
   medicationId: number;
   dosage: string | null;
-  frequency: string | null;
   instruction: string | null;
   scheduledTime: string | null;
   startDate: string | null;
@@ -66,6 +64,7 @@ export type NextDoseSummary = {
   scheduledLabel: string;
   isTaken: boolean;
   canMarkTaken: boolean;
+  helperText: string;
 };
 
 export type TodayScheduleItem = {
@@ -85,8 +84,8 @@ export type ActiveMedicationCardItem = {
   id: number;
   name: string;
   dosage: string;
-  frequency: string;
   instruction: string;
+  form: string | null;
   scheduledTimeLabel: string | null;
   startDateLabel: string | null;
   endDateLabel: string | null;
@@ -96,8 +95,8 @@ export type ActiveMedicationCardItem = {
 };
 
 export type MedicationDashboard = {
-  selectedRange: MedicationRange;
   adherenceSummary: MedicationAdherenceResponse['summary'];
+  adherenceTrend: MedicationAdherenceResponse['trend'];
   todaySummary: TodayMedicationSummary;
   nextDose: NextDoseSummary | null;
   todaySchedule: TodayScheduleItem[];

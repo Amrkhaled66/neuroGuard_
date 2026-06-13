@@ -11,8 +11,8 @@ export interface PatientMedication {
   name?: string;
   form?: "tablet" | "capsule" | "liquid" | "injection" | "other";
   dosage?: string;
-  frequency?: string;
   instruction?: string;
+  scheduledTime?: string;
   startDate: string;
   endDate?: string;
   status: "active" | "discontinued";

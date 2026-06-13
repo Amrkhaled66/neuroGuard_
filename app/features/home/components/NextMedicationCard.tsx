@@ -45,7 +45,7 @@ export function NextMedicationCard({ medication, onMarkTaken, isSubmitting = fal
             ? 'bg-brand-primary-soft'
             : 'bg-brand-primary'
           }`}>
-        {isSubmitting || medication.isTaken ? (
+        {isSubmitting ? (
           <ActivityIndicator size="small" color="#0e3b31" />
         ) : null}
         <Text className={`ml-2 text-base font-bold ${medication.isTaken || !medication.canMarkTaken || isSubmitting ? 'text-brand-secondary' : 'text-white'}`}>

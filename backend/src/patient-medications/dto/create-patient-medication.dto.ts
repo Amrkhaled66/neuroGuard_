@@ -20,10 +20,6 @@ export class CreatePatientMedicationDto {
 
   @IsOptional()
   @IsString()
-  frequency?: string;
-
-  @IsOptional()
-  @IsString()
   instruction?: string;
 
   @IsOptional()

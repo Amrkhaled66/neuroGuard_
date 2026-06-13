@@ -17,7 +17,7 @@ export default function MedicationCard({
   isSubmitting,
 }: MedicationCardProps) {
   const descriptor =
-    [medication.dosage, medication.frequency].filter(Boolean).join(" | ") ||
+    [medication.dosage, medication.scheduledTime].filter(Boolean).join(" | ") ||
     "No dosage instructions available";
 
   return (

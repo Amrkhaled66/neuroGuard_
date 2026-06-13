@@ -76,8 +76,8 @@ function PatientMedicationTable({
       // width: "120px",
     },
     {
-      name: "Frequency",
-      cell: (row) => row.frequency || "-",
+      name: "Schedule Time",
+      cell: (row) => row.scheduledTime || "-",
       // width: "130px",
     },
     {

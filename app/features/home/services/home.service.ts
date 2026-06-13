@@ -46,7 +46,6 @@ export type PatientOverviewResponse = {
     id: number;
     name: string;
     dosage?: string | null;
-    frequency?: string | null;
     instruction?: string | null;
     scheduledTime?: string | null;
     nextDoseAt?: string | null;

@@ -33,8 +33,8 @@ const initialValues: AddPatientMedicationFormValues = {
   newMedicationName: undefined,
   newMedicationForm: undefined,
   dosage: "",
-  frequency: "",
   instruction: "",
+  scheduledTime: "",
   startDate: "",
   endDate: "",
   status: "active",
@@ -82,8 +82,8 @@ export default function AddMedicationModal({
         medicationSource: "existing",
         medicationId: editingMedication.medicationId,
         dosage: editingMedication.dosage ?? "",
-        frequency: editingMedication.frequency ?? "",
         instruction: editingMedication.instruction ?? "",
+        scheduledTime: editingMedication.scheduledTime ?? "",
         startDate: editingMedication.startDate,
         endDate: editingMedication.endDate ?? "",
         status: editingMedication.status,
@@ -121,8 +121,8 @@ export default function AddMedicationModal({
   ): PatientMedicationMutationPayload => ({
     medicationId,
     dosage: data.dosage?.trim() ? data.dosage.trim() : undefined,
-    frequency: data.frequency?.trim() ? data.frequency.trim() : undefined,
     instruction: data.instruction?.trim() ? data.instruction.trim() : undefined,
+    scheduledTime: data.scheduledTime?.trim() ? data.scheduledTime.trim() : undefined,
     startDate: data.startDate,
     endDate: data.endDate?.trim() ? data.endDate.trim() : undefined,
     status: data.status,
@@ -277,10 +277,10 @@ export default function AddMedicationModal({
             error={errors["dosage"]?.message}
           />
           <FormInput
-            label="Frequency"
-            {...register("frequency")}
-            placeholder="e.g., Twice daily"
-            error={errors["frequency"]?.message}
+            label="Schedule Time"
+            {...register("scheduledTime")}
+            type="time"
+            error={errors["scheduledTime"]?.message}
           />
         </div>
 

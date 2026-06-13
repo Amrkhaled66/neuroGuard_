@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth/context/useAuth';
 import {
@@ -11,16 +11,17 @@ import type {
   MedicationDashboard,
   MedicationLog,
   MedicationLogStatus,
-  MedicationRange,
   NextDoseSummary,
   PatientMedication,
   TodayMedicationSummary,
   TodayScheduleItem,
 } from '@/features/medication/types/medication.types';
 
+const DEFAULT_ADHERENCE_DAYS = 30;
+
 export const medicationQueryKeys = {
   medications: (patientId: number) => ['patient', patientId, 'medications'] as const,
-  adherence: (patientId: number, days: MedicationRange) =>
+  adherence: (patientId: number, days: number) =>
     ['patient', patientId, 'medications', 'adherence', days] as const,
 };
 
@@ -135,9 +136,9 @@ function mapTodaySchedule(items: PatientMedication[], now: Date, todayKey: strin
         instruction: item.instruction ?? 'No instructions provided',
         scheduledTime: formatTimeLabel(scheduledTime),
         status,
-        isOverdue: status === 'scheduled' && minutes < currentMinutes,
-        canMarkTaken: status === 'scheduled',
-        canMarkMissed: status === 'scheduled',
+        isOverdue: status === 'scheduled' && minutes <= currentMinutes,
+        canMarkTaken: status === 'scheduled' && minutes <= currentMinutes,
+        canMarkMissed: status === 'scheduled' && minutes <= currentMinutes,
         sortMinutes: minutes,
       };
     })
@@ -165,6 +166,7 @@ function mapNextDose(schedule: TodayScheduleItem[]): NextDoseSummary | null {
       scheduledLabel: `Tomorrow, ${tomorrowSchedule.scheduledTime}`,
       isTaken: false,
       canMarkTaken: false,
+      helperText: 'This dose becomes available tomorrow.',
     };
   }
 
@@ -175,7 +177,10 @@ function mapNextDose(schedule: TodayScheduleItem[]): NextDoseSummary | null {
     instruction: candidate.instruction,
     scheduledLabel: `Today, ${candidate.scheduledTime}`,
     isTaken: false,
-    canMarkTaken: true,
+    canMarkTaken: candidate.canMarkTaken,
+    helperText: candidate.canMarkTaken
+      ? 'This dose is ready to be marked now.'
+      : 'You can mark this dose once its scheduled time arrives.',
   };
 }
 
@@ -186,8 +191,8 @@ function mapActiveMedications(items: PatientMedication[]): ActiveMedicationCardI
       id: item.id,
       name: item.name,
       dosage: item.dosage ?? 'No dosage',
-      frequency: item.frequency ?? 'No frequency provided',
       instruction: item.instruction ?? 'No instructions provided',
+      form: item.form,
       scheduledTimeLabel: item.scheduledTime ? formatTimeLabel(item.scheduledTime) : null,
       startDateLabel: formatDateLabel(item.startDate),
       endDateLabel: formatDateLabel(item.endDate),
@@ -197,17 +202,14 @@ function mapActiveMedications(items: PatientMedication[]): ActiveMedicationCardI
     }));
 }
 
-function mapDashboard(
-  payload: MedicationAdherenceResponse,
-  selectedRange: MedicationRange,
-): MedicationDashboard {
+function mapDashboard(payload: MedicationAdherenceResponse): MedicationDashboard {
   const now = new Date();
   const todayKey = getLocalDateKey(now);
   const todaySchedule = mapTodaySchedule(payload.items, now, todayKey);
 
   return {
-    selectedRange,
     adherenceSummary: payload.summary,
+    adherenceTrend: payload.trend,
     todaySummary: mapTodaySummary(payload.items, todayKey),
     nextDose: mapNextDose(todaySchedule),
     todaySchedule,
@@ -215,16 +217,27 @@ function mapDashboard(
   };
 }
 
-export function useMedicationDashboard() {
+type UseMedicationDashboardResult = {
+  dashboard: MedicationDashboard | null;
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
+  isSubmitting: boolean;
+  activeMutationId: number | null;
+  markDoseTaken: (medId: number) => Promise<void>;
+  markDoseMissed: (medId: number) => Promise<void>;
+  refetchAll: () => Promise<void>;
+};
+
+export function useMedicationDashboard(): UseMedicationDashboardResult {
   const queryClient = useQueryClient();
   const { session } = useAuth();
-  const [selectedRange, setSelectedRange] = useState<MedicationRange>(7);
   const patientId = Number(session?.user.id ?? 0);
   const hasPatientId = Number.isFinite(patientId) && patientId > 0;
 
   const adherenceQuery = useQuery({
-    queryKey: medicationQueryKeys.adherence(patientId, selectedRange),
-    queryFn: () => getPatientMedicationAdherence(patientId, selectedRange),
+    queryKey: medicationQueryKeys.adherence(patientId, DEFAULT_ADHERENCE_DAYS),
+    queryFn: () => getPatientMedicationAdherence(patientId, DEFAULT_ADHERENCE_DAYS),
     enabled: hasPatientId,
   });
 
@@ -239,7 +252,7 @@ export function useMedicationDashboard() {
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({
-          queryKey: medicationQueryKeys.adherence(patientId, selectedRange),
+          queryKey: medicationQueryKeys.adherence(patientId, DEFAULT_ADHERENCE_DAYS),
         }),
         queryClient.invalidateQueries({
           queryKey: medicationQueryKeys.medications(patientId),
@@ -253,8 +266,8 @@ export function useMedicationDashboard() {
       return null;
     }
 
-    return mapDashboard(adherenceQuery.data, selectedRange);
-  }, [adherenceQuery.data, selectedRange]);
+    return mapDashboard(adherenceQuery.data);
+  }, [adherenceQuery.data]);
 
   async function markDose(medId: number, status: Extract<MedicationLogStatus, 'taken' | 'missed'>) {
     await logMutation.mutateAsync({ medId, status });
@@ -266,8 +279,6 @@ export function useMedicationDashboard() {
 
   return {
     dashboard,
-    selectedRange,
-    setSelectedRange,
     isLoading: adherenceQuery.isLoading || (!hasPatientId && !adherenceQuery.data),
     isError: !hasPatientId || adherenceQuery.isError,
     error: !hasPatientId

@@ -2,7 +2,7 @@ from pathlib import Path
 
 
 BASE_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = BASE_DIR.parent.parent
+PROJECT_ROOT = BASE_DIR.parent
 DATA_DIR = BASE_DIR / "data"
 EDF_DIR = DATA_DIR / "edf"
 ANNOTATIONS_DIR = DATA_DIR / "annotations"
